@@ -39,7 +39,29 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
   return data;
 }
 
-export async function getSectionConfig(sectionType:string): Promise<SectionConfig | null> {
+export async function getSections(): Promise<Record<string, SectionConfig>> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("section_config")
+    .select("*")
+    .order("sort_order", { ascending: false });
+    
+  if (error) {
+    console.error("Błąd podczas pobierania tabeli section_config:", error.message);
+    return {};
+  }
+
+  // Przekształcenie tablicy do obiektu, używając section_type jako klucza
+  const sectionsMap = (data || []).reduce((acc, section) => {
+      acc[section.section_type] = section;
+      return acc;
+  }, {} as Record<string, SectionConfig>);
+
+  return sectionsMap;
+}
+
+export async function getSectionConfigByType(sectionType:string): Promise<SectionConfig | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase

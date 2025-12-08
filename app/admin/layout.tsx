@@ -1,6 +1,6 @@
 import AdminSidebar from "@/components/features/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { getSiteConfig } from "@/lib/supabase/data";
+import { getSections, getSiteConfig, SiteConfig } from "@/lib/supabase/data";
 import { createClient } from "@/lib/supabase/server";
 import React from "react";
 
@@ -29,20 +29,25 @@ function ConfigErrorFallback() {
 
 // Main Layout Content
 function AdminLayoutContent({
-  config,
+  configSite,
+  configSection,
   children,
 }: {
-  config: any;
+  configSite: SiteConfig;
+  configSection: any;
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen flex flex-row w-full overflow-hidden">
+    <div className="h-screen flex flex-row w-full">
       <SidebarProvider>
-        <AdminSidebar initialConfig={config} />
+        <AdminSidebar
+          initialConfigSection={configSection}
+          initialConfigSite={configSite}
+        />
 
-        <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+        <main className="flex-1 flex flex-col h-full relative">
           <div className="absolute top-4 left-4 z-50">
-            <SidebarTrigger className="bg-white shadow-md border" />
+            <SidebarTrigger className="bg-background shadow-xs" />
           </div>
 
           <div>{children}</div>
@@ -70,14 +75,21 @@ export default async function AdminLayout({
     }
 
     // 2. Pobranie danych do edycji
-    const config = await getSiteConfig();
+    const configSite = await getSiteConfig();
+    const configSection = await getSections();
+
+    console.log(configSection);
 
     // Return early before JSX construction if config is missing
-    if (!config) {
+    if (!configSite || !configSection) {
       return <ConfigErrorFallback />;
     }
 
-    return <AdminLayoutContent config={config}>{children}</AdminLayoutContent>;
+    return (
+      <AdminLayoutContent configSite={configSite} configSection={configSection}>
+        {children}
+      </AdminLayoutContent>
+    );
   } catch (e) {
     if ((e as Error).message === "REDIRECT_MOCK") {
       return <div className="p-8 text-blue-500">Trwa przekierowanie...</div>;

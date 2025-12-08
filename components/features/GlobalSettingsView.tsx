@@ -35,7 +35,7 @@ export default function GlobalSettingsView({
             Główne ustawienia
           </Label>
 
-          <div className="space-y-4 bg-background p-3 rounded-md border">
+          <div className="space-y-4  p-3 rounded-md border">
             <div className="space-y-2">
               <Label htmlFor="app_title" className="text-sm">
                 Tytuł strony (App Title)

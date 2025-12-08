@@ -1,4 +1,4 @@
-import { getSiteConfig } from "@/lib/supabase/data";
+import { getSections, getSiteConfig } from "@/lib/supabase/data";
 import { LandingPagePreview } from "@/components/features/LandingPagePreview";
 
 /**
@@ -8,6 +8,7 @@ import { LandingPagePreview } from "@/components/features/LandingPagePreview";
  */
 export default async function AdminPage() {
   const configSite = await getSiteConfig();
+  const configSections = await getSections();
 
   if (!configSite) {
     return (
@@ -20,15 +21,12 @@ export default async function AdminPage() {
       </div>
     );
   }
-
-  // W Layout.tsx ten komponent jest renderowany w sekcji "podglądu"
-  // z ustawionym justify-center.
   return (
     <div>
-      {/* LandingPagePreview renderuje podgląd strony na podstawie danych
-        edytowanych w bocznym pasku (AdminSidebar). 
-      */}
-      <LandingPagePreview configSite={configSite} />
+      <LandingPagePreview
+        configSite={configSite}
+        configSections={configSections}
+      />
     </div>
   );
 }

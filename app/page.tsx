@@ -10,8 +10,8 @@ function UnderConstructionPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center space-y-6 text-center p-6">
       <Wrench size={64} className="text-gray-500 animate-pulse" />
-      <h1 className="text-3xl font-bold text-gray-800">Strona w Budowie</h1>
-      <p className="text-lg text-gray-600">
+      <h1 className="text-3xl font-bold">Strona w Budowie</h1>
+      <p className="text-lg text-muted-foreground">
         Przepraszamy za utrudnienia. Nasz Landify jest tymczasowo niedostępny.
         Proszę spróbować ponownie później.
       </p>
