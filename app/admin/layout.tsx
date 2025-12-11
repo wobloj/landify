@@ -1,6 +1,10 @@
 import AdminSidebar from "@/components/features/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { getSections, getSiteConfig, SiteConfig } from "@/lib/supabase/data";
+import {
+  getSectionsData,
+  getSiteConfig,
+  SiteConfig,
+} from "@/lib/supabase/data";
 import { createClient } from "@/lib/supabase/server";
 import React from "react";
 
@@ -76,7 +80,7 @@ export default async function AdminLayout({
 
     // 2. Pobranie danych do edycji
     const configSite = await getSiteConfig();
-    const configSection = await getSections();
+    const configSection = await getSectionsData();
 
     console.log(configSection);
 

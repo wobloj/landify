@@ -2,7 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Wrench } from "lucide-react";
 // Zmieniono import "next/link" na standardowy tag <a>, aby uniknąć problemów z kompilacją
 // import Link from "next/link";
-import { getSiteConfig, SiteConfig } from "@/lib/supabase/data"; // Spodziewana ścieżka do danych
+import {
+  getSectionsData,
+  getSiteConfig,
+  SiteConfig,
+} from "@/lib/supabase/data"; // Spodziewana ścieżka do danych
 import { LandingPagePreview } from "@/components/features/LandingPagePreview";
 
 // Własny komponent wyświetlający stronę "Under Construction"
@@ -26,18 +30,24 @@ function UnderConstructionPage() {
 }
 
 export default async function Home() {
-  const config = await getSiteConfig();
+  const configSite = await getSiteConfig();
+  const configSections = await getSectionsData();
 
-  if (!config) {
+  if (!configSite || !configSections) {
     // Awaryjny stan w przypadku błędu bazy danych
     return <UnderConstructionPage />;
   }
 
   // GŁÓWNA LOGIKA WARUNKOWA
-  if (!config.is_published) {
+  if (!configSite.is_published) {
     return <UnderConstructionPage />;
   }
 
   // Strona opublikowana
-  return <LandingPagePreview config={config} />;
+  return (
+    <LandingPagePreview
+      configSections={configSections}
+      configSite={configSite}
+    />
+  );
 }

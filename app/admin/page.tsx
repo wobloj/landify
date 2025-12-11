@@ -1,4 +1,4 @@
-import { getSections, getSiteConfig } from "@/lib/supabase/data";
+import { getSectionsData, getSiteConfig } from "@/lib/supabase/data";
 import { LandingPagePreview } from "@/components/features/LandingPagePreview";
 
 /**
@@ -8,7 +8,7 @@ import { LandingPagePreview } from "@/components/features/LandingPagePreview";
  */
 export default async function AdminPage() {
   const configSite = await getSiteConfig();
-  const configSections = await getSections();
+  const configSections = await getSectionsData();
 
   if (!configSite) {
     return (

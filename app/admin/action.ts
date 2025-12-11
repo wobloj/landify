@@ -3,6 +3,7 @@
 import {
   updateSiteGlobalContent,
   updatePublishStatus,
+  saveOrderToSection,
 } from "@/lib/supabase/data";
 
 import { revalidatePath } from "next/cache";
@@ -42,6 +43,22 @@ export async function saveHeroSettings(formData: FormData) {
 
     return { success: true, message: "Zapisano sekcję Hero." };
   } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+}
+
+export async function saveSectionOrder(sections: string[]) {
+  try {
+    // Ta funkcja jest teraz znacznie bardziej odporna na błędy
+    await saveOrderToSection(sections);
+
+    // Rewalidacja ścieżek
+    revalidatePath("/admin");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error: any) {
+    // Zwracanie dokładnego komunikatu błędu z warstwy danych
     return { success: false, message: error.message };
   }
 }

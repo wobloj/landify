@@ -75,13 +75,11 @@ export default function AdminSidebar({
 
       <SidebarContent className="px-2">
         {/* TAB: USTAWIENIA (Globalne) */}
-
         {activeTab === "settings" && (
           <GlobalSettingsView initialSiteConfig={initialConfigSite} />
         )}
 
         {/* TAB: SEKCJE */}
-
         {activeTab === "sections" && (
           <SectionSettingsView initialConfigSection={initialConfigSection} />
         )}

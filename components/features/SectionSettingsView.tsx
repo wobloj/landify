@@ -1,4 +1,4 @@
-import { Edit, GripVertical, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { SidebarGroup } from "../ui/sidebar";
 import { Button } from "../ui/button";
 import { useState } from "react";
@@ -6,6 +6,7 @@ import HeroEditor from "./editors/HeroEditor";
 import FeaturesEditor from "./editors/FeaturesEditor";
 import CtaEditor from "./editors/CtaEditor";
 import { SectionConfig } from "@/lib/supabase/data";
+import SortableSectionList from "./SortableSectionList";
 
 interface SectionSettingsProps {
   initialConfigSection: SectionConfig[];
@@ -15,6 +16,13 @@ export default function SectionSettingsView({
   initialConfigSection,
 }: SectionSettingsProps) {
   const [editingSection, setEditingSection] = useState<string | null>(null);
+
+  const initialSections = Object.keys(initialConfigSection).sort(
+    (a, b) =>
+      (initialConfigSection[a].sort_order ?? 0) -
+      (initialConfigSection[b].sort_order ?? 0)
+  );
+
   const heroData = initialConfigSection["hero"];
   const featuresData = initialConfigSection["features"];
   const ctaData = initialConfigSection["cta"];
@@ -31,30 +39,10 @@ export default function SectionSettingsView({
               Kliknij w sekcję, aby ją edytować.
             </p>
 
-            <div className="flex flex-col gap-2">
-              {["hero", "features", "cta"].map((section, i) => (
-                <div
-                  key={i}
-                  onClick={() => setEditingSection(section)}
-                  className="group flex items-center justify-between p-3 bg-background border rounded-md shadow-sm hover:border-primary/50 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <GripVertical
-                      className="w-4 h-4 text-muted-foreground cursor-grab active:cursor-grabbing"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-
-                    <span className="font-medium text-sm">
-                      {section.toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Edit className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SortableSectionList
+              initialSections={initialSections}
+              setEditingSection={setEditingSection}
+            />
           </SidebarGroup>
 
           <SidebarGroup>
