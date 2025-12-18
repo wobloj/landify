@@ -29,20 +29,20 @@ export default function GlobalSettingsView({
   return (
     <div className="flex flex-col gap-6 py-4 animate-in fade-in slide-in-from-left-4 duration-300">
       {/* Formularz ustawień globalnych */}
-      <form action={handleSaveGlobalSettings} className="flex flex-col gap-6">
+      <form action={handleSaveGlobalSettings} className="flex flex-col gap-4">
         <div className="space-y-2">
           <Label className="text-xs font-semibold uppercase text-muted-foreground">
             Główne ustawienia
           </Label>
 
-          <div className="space-y-4  p-3 rounded-md border">
-            <div className="space-y-2">
+          <div className="flex items-center gap-3 p-3 border rounded-md bg-background">
+            <div className="space-y-2  w-full">
               <Label htmlFor="app_title" className="text-sm">
-                Tytuł strony (App Title)
+                Tytuł strony
               </Label>
               <Input
                 type="text"
-                name="app_title" // Upewnij się, że action.ts obsługuje to pole
+                name="app_title"
                 defaultValue={initialSiteConfig.app_title}
                 placeholder="Np. Mój Startup"
               />

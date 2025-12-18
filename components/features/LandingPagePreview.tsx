@@ -1,17 +1,16 @@
 import { SectionConfig, SiteConfig } from "@/lib/supabase/data";
 import { Button } from "@/components/ui/button";
-import { Separator } from "../ui/separator";
 import { icons } from "@/lib/consts/icons";
 
 function FeatureItem({ item }: any) {
   const Icon = icons[item.icon];
 
   return (
-    <div className="flex flex-col gap-3 items-center">
-      {Icon && <Icon className="w-6 h-6" />}
-      <div className="w-42">
-        <h3 className="font-bold">{item.title}</h3>
-        <p className="text-gray-600">{item.desc}</p>
+    <div className="flex flex-col gap-3 items-center rounded-md w-full py-2 transition-colors hover:bg-accent-foreground/15">
+      {Icon && <Icon className="size-8" />}
+      <div>
+        <h3 className="font-bold text-2xl mb-4">{item.title}</h3>
+        <p className="text-gray-600 text-base">{item.desc}</p>
       </div>
     </div>
   );
@@ -109,7 +108,7 @@ export async function LandingPagePreview({
                   >
                     {section?.title}
                   </h2>
-                  <div className="flex flex-row justify-between">
+                  <div className="grid grid-cols-3 gap-16 place-items-stretch">
                     {section?.data_json?.items?.map((item: any) => (
                       <FeatureItem key={item.title} item={item} />
                     ))}

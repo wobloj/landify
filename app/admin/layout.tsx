@@ -3,18 +3,17 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import {
   getSectionsData,
   getSiteConfig,
+  SectionConfig,
   SiteConfig,
 } from "@/lib/supabase/data";
 import { createClient } from "@/lib/supabase/server";
 import React from "react";
 
-// Mock funkcji redirect
 function redirect(path: string): never {
   console.log(`[Navigation] Przekierowanie do: ${path}`);
   throw new Error("REDIRECT_MOCK");
 }
 
-// Error Fallback Component
 function ConfigErrorFallback() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100 p-8">
@@ -23,22 +22,20 @@ function ConfigErrorFallback() {
           Błąd Konfiguracji Strony
         </h1>
         <p className="text-gray-600 mt-2">
-          Nie udało się załadować danych konfiguracyjnych strony. Sprawdź serwis
-          danych (data.ts).
+          Nie udało się załadować danych konfiguracyjnych strony.
         </p>
       </div>
     </div>
   );
 }
 
-// Main Layout Content
 function AdminLayoutContent({
   configSite,
   configSection,
   children,
 }: {
   configSite: SiteConfig;
-  configSection: any;
+  configSection: SectionConfig;
   children: React.ReactNode;
 }) {
   return (
@@ -66,38 +63,26 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  try {
-    // 1. Walidacja sesji
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!user) {
-      redirect("/");
-    }
+  if (!user) {
+    redirect("/");
+  }
 
-    // 2. Pobranie danych do edycji
-    const configSite = await getSiteConfig();
-    const configSection = await getSectionsData();
+  const configSite = await getSiteConfig();
+  const configSection = await getSectionsData();
 
-    console.log(configSection);
-
-    // Return early before JSX construction if config is missing
-    if (!configSite || !configSection) {
-      return <ConfigErrorFallback />;
-    }
-
+  if (!configSite || !configSection) {
+    return <ConfigErrorFallback />;
+  } else {
     return (
       <AdminLayoutContent configSite={configSite} configSection={configSection}>
         {children}
       </AdminLayoutContent>
     );
-  } catch (e) {
-    if ((e as Error).message === "REDIRECT_MOCK") {
-      return <div className="p-8 text-blue-500">Trwa przekierowanie...</div>;
-    }
-    throw e;
   }
 }

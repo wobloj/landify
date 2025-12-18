@@ -15,6 +15,7 @@ import {
 import { iconOptions } from "@/lib/consts/icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FeaturesType } from "@/lib/supabase/types/sectionTypes";
+import { saveSectionSettings } from "@/app/admin/action";
 
 interface FeaturesEditorProps {
   featuresData: FeaturesType;
@@ -39,9 +40,10 @@ export default function FeaturesEditor({
         </Button>
       </div>
 
-      <form>
+      <form action={saveSectionSettings}>
+        <input type="hidden" name="section_type" value={"features"} />
         <div className="space-y-4">
-          <Label>Ogólne</Label>
+          <Label className="font-bold">Ogólne</Label>
           <div className="space-y-2 bg-background p-4 rounded-md">
             <Label htmlFor="features_title">Nagłówek</Label>
 
@@ -51,8 +53,8 @@ export default function FeaturesEditor({
               defaultValue={featuresData?.title}
             />
           </div>
-          <Label>Sekcje</Label>
-          <ScrollArea className="h-96 rounded-md">
+          <Label className="font-bold">Sekcje</Label>
+          <ScrollArea className="h-96 pr-2">
             {items.map((item, index: number) => (
               <div
                 key={index}

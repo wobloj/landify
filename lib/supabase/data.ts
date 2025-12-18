@@ -1,5 +1,7 @@
 import { createClient } from "./server";
 
+export type SectionType = "hero" | "features" | "cta";
+
 export type SiteConfig = {
   id: number;
   app_title: string;
@@ -14,11 +16,18 @@ export type SiteConfig = {
 
 export type SectionConfig = {
   id: number;
-  section_type: "hero" | "features" | "cta" | null;
+  section_type: SectionType;
   sort_order: number;
   title: string;
-  data_json: [];
+  image_url: string | null;
+  data_json: Record<string, any>;
   updated_at: string;
+};
+
+type UpdateSectionPayload = {
+  title?: string;
+  image_url?: string | null;
+  data_json?: Record<string, any>;
 };
 
 export async function getSiteConfig(): Promise<SiteConfig | null> {
@@ -198,16 +207,29 @@ export async function updateSiteGlobalContent(updates: Partial<SiteConfig>) {
   }
 }
 
-export async function updateSiteSectionsContent(updates: Partial<SiteConfig>) {
+/**
+ * Aktualizuje jedną sekcję strony na podstawie section_type
+ * (hero / features / cta / etc.)
+ */
+export async function updateSectionContent(
+  sectionType: string,
+  updates: UpdateSectionPayload
+): Promise<void> {
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("section_config")
-    .update(updates)
-    .eq("id", 1);
+    .update({
+      ...updates,
+    })
+    .eq("section_type", sectionType)
+    .single();
 
   if (error) {
-    console.error("Błąd podczas aktualizacji treści:", error.message);
-    throw new Error("Nie udało się zapisać treści strony.");
+    console.error(
+      `[updateSectionContent] Błąd zapisu sekcji "${sectionType}":`,
+      error
+    );
+    throw new Error("Nie udało się zapisać sekcji strony.");
   }
 }

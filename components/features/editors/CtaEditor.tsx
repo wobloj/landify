@@ -27,7 +27,7 @@ export default function CtaEditor({ ctaData, onClick }: CtaEditorProps) {
       <form>
         <div className="space-y-4">
           <Label className="font-semibold">Ogólne</Label>
-          <div className="bg-background p-4 my-2 rounded-md">
+          <div className="bg-background p-4 my-2 rounded-md flex flex-col gap-4">
             <div className="space-y-2">
               <Label htmlFor="cta_title">Nagłówek</Label>
 
@@ -39,7 +39,7 @@ export default function CtaEditor({ ctaData, onClick }: CtaEditorProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cta_desc">Nagłówek</Label>
+              <Label htmlFor="cta_desc">Podtytuł</Label>
 
               <Textarea
                 id="cta_desc"
@@ -49,7 +49,7 @@ export default function CtaEditor({ ctaData, onClick }: CtaEditorProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cta_button_text">Podtytuł</Label>
+              <Label htmlFor="cta_button_text">Tekst przycisku</Label>
 
               <Input
                 id="cta_button_text"

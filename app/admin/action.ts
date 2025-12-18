@@ -4,6 +4,7 @@ import {
   updateSiteGlobalContent,
   updatePublishStatus,
   saveOrderToSection,
+  updateSectionContent,
 } from "@/lib/supabase/data";
 
 import { revalidatePath } from "next/cache";
@@ -28,23 +29,33 @@ export async function saveGlobalSettings(formData: FormData) {
   }
 }
 
-// --- SEKCJA HERO ---
+export async function saveSectionSettings(formData: FormData): Promise<void> {
+  const sectionType = formData.get("section_type") as string;
 
-export async function saveHeroSettings(formData: FormData) {
-  try {
-    const updates = {
-      hero_title: formData.get("hero_title") as string,
-      hero_subtitle: formData.get("hero_subtitle") as string,
-    };
-    // Aktualizujemy tylko pola Hero
-    await updateSiteContent(updates);
-    revalidatePath("/admin");
-    revalidatePath("/");
-
-    return { success: true, message: "Zapisano sekcję Hero." };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  if (!sectionType) {
+    throw new Error("Brak section_type");
   }
+
+  const title = formData.get("title") as string;
+  const image_url = formData.get("image_url") as string | null;
+
+  let data_json: Record<string, any> = {};
+
+  if (sectionType === "hero") {
+    data_json = {
+      subtitle: formData.get("subtitle"),
+      button_text: formData.get("button_text"),
+    };
+  }
+
+  await updateSectionContent(sectionType, {
+    title,
+    image_url,
+    data_json,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/");
 }
 
 export async function saveSectionOrder(sections: string[]) {
