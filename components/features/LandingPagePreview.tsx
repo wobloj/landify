@@ -23,14 +23,13 @@ export async function LandingPagePreview({
   configSite: SiteConfig;
   configSections: SectionConfig;
 }) {
-  // 🔥 Zamieniamy obiekt sekcji na tablicę i sortujemy po sort_order
   const orderedSections = Object.entries(configSections).sort(
     ([, a], [, b]) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
   );
 
   return (
     <div
-      className="min-h-screen bg-white font-sans text-slate-900 w-full"
+      className="min-h-screen font-sans text-slate-900 w-full"
       style={{ backgroundColor: configSite.bg_color }}
     >
       <header
@@ -50,7 +49,6 @@ export async function LandingPagePreview({
         </div>
       </header>
 
-      {/* 🔥 Sekcje renderowane wg kolejności */}
       {orderedSections.map(([key, section]) => {
         switch (key) {
           case "hero":

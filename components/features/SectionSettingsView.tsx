@@ -55,7 +55,7 @@ export default function SectionSettingsView({
                 <Button
                   key={item}
                   variant="outline"
-                  className="justify-start h-auto py-2 px-3"
+                  className="justify-start h-auto py-2 px-3 cursor-pointer"
                   size="sm"
                 >
                   <Plus className="w-3 h-3 mr-2 text-muted-foreground" />

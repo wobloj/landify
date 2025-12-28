@@ -207,29 +207,23 @@ export async function updateSiteGlobalContent(updates: Partial<SiteConfig>) {
   }
 }
 
-/**
- * Aktualizuje jedną sekcję strony na podstawie section_type
- * (hero / features / cta / etc.)
- */
 export async function updateSectionContent(
   sectionType: string,
-  updates: UpdateSectionPayload
-): Promise<void> {
+  updates: {
+    title?: string;
+    image_url?: string | null;
+    data_json?: any;
+  }
+) {
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("section_config")
-    .update({
-      ...updates,
-    })
-    .eq("section_type", sectionType)
-    .single();
+    .update(updates)
+    .eq("section_type", sectionType);
 
   if (error) {
-    console.error(
-      `[updateSectionContent] Błąd zapisu sekcji "${sectionType}":`,
-      error
-    );
+    console.error(`[updateSectionContent] ${sectionType}`, error);
     throw new Error("Nie udało się zapisać sekcji strony.");
   }
 }

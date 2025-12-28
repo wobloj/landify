@@ -5,6 +5,7 @@ import { Label } from "@radix-ui/react-label";
 import { ChevronLeft } from "lucide-react";
 import SubmitButton from "../SubmitButton";
 import { CtaType } from "@/lib/supabase/types/sectionTypes";
+import { saveSectionSettings } from "@/app/admin/action";
 
 interface CtaEditorProps {
   ctaData: CtaType;
@@ -24,37 +25,35 @@ export default function CtaEditor({ ctaData, onClick }: CtaEditorProps) {
         </Button>
       </div>
 
-      <form>
+      <form action={saveSectionSettings}>
+        <input type="hidden" name="section_type" value="cta" />
+
         <div className="space-y-4">
           <Label className="font-semibold">Ogólne</Label>
           <div className="bg-background p-4 my-2 rounded-md flex flex-col gap-4">
             <div className="space-y-2">
-              <Label htmlFor="cta_title">Nagłówek</Label>
+              <Label htmlFor="title">Nagłówek</Label>
 
-              <Input
-                id="cta_title"
-                name="cta_title"
-                defaultValue={ctaData?.title}
-              />
+              <Input id="title" name="title" defaultValue={ctaData?.title} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cta_desc">Podtytuł</Label>
+              <Label htmlFor="desc">Podtytuł</Label>
 
               <Textarea
-                id="cta_desc"
-                name="cta_desc"
+                id="desc"
+                name="desc"
                 defaultValue={ctaData?.data_json.desc}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cta_button_text">Tekst przycisku</Label>
+              <Label htmlFor="button_text">Tekst przycisku</Label>
 
               <Input
-                id="cta_button_text"
+                id="button_text"
                 type="text"
-                name="cta_button_text"
+                name="button_text"
                 defaultValue={ctaData?.data_json.button_text}
               />
             </div>

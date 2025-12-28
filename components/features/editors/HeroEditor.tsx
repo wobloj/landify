@@ -23,42 +23,26 @@ export default function HeroEditor({ heroData, onClick }: HeroEditorProps) {
       </div>
 
       <form action={saveSectionSettings}>
-        {/* 🔥 KLUCZOWE */}
         <input type="hidden" name="section_type" value="hero" />
-        <Label className="font-bold">Ogólne</Label>
-        <div className="space-y-4">
-          <div className="flex flex-col gap-4 bg-background rounded-xl p-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Nagłówek</Label>
-              <Input id="title" name="title" defaultValue={heroData.title} />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="subtitle">Podtytuł</Label>
-              <Textarea
-                id="subtitle"
-                name="subtitle"
-                className="h-20 resize-none"
-                defaultValue={heroData.data_json.subtitle}
-              />
-            </div>
+        <div className="space-y-4 bg-background rounded-xl p-4">
+          <div className="space-y-2">
+            <Label>Nagłówek</Label>
+            <Input name="title" defaultValue={heroData.title} />
           </div>
 
-          {/* 🔥 data_json składane Z FORMULARZA */}
-          <input
-            type="hidden"
-            name="data_json"
-            value={JSON.stringify({
-              subtitle: heroData.data_json.subtitle,
-            })}
-          />
-
-          <div className="pt-4 border-t">
-            <SubmitButton className="w-full" size="sm">
-              Zapisz zmiany w Hero
-            </SubmitButton>
+          <div className="space-y-2">
+            <Label>Podtytuł</Label>
+            <Textarea
+              name="subtitle"
+              defaultValue={heroData.data_json.subtitle}
+            />
           </div>
         </div>
+
+        <SubmitButton className="w-full" size="sm">
+          Zapisz zmiany w Hero
+        </SubmitButton>
       </form>
     </div>
   );

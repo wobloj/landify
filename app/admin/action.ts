@@ -31,16 +31,13 @@ export async function saveGlobalSettings(formData: FormData) {
 
 export async function saveSectionSettings(formData: FormData): Promise<void> {
   const sectionType = formData.get("section_type") as string;
-
-  if (!sectionType) {
-    throw new Error("Brak section_type");
-  }
+  if (!sectionType) throw new Error("Brak section_type");
 
   const title = formData.get("title") as string;
-  const image_url = formData.get("image_url") as string | null;
 
-  let data_json: Record<string, any> = {};
+  let data_json: any = {};
 
+  // 🔹 HERO
   if (sectionType === "hero") {
     data_json = {
       subtitle: formData.get("subtitle"),
@@ -48,9 +45,34 @@ export async function saveSectionSettings(formData: FormData): Promise<void> {
     };
   }
 
+  // 🔹 FEATURES
+  if (sectionType === "features") {
+    const items: any[] = [];
+
+    for (const [key, value] of formData.entries()) {
+      const match = key.match(/^items\[(\d+)\]\.(.+)$/);
+      if (!match) continue;
+
+      const index = Number(match[1]);
+      const field = match[2];
+
+      items[index] ??= {};
+      items[index][field] = value;
+    }
+
+    data_json = { items };
+  }
+
+  // 🔹 CTA
+  if (sectionType === "cta") {
+    data_json = {
+      desc: formData.get("desc"),
+      button_text: formData.get("button_text"),
+    };
+  }
+
   await updateSectionContent(sectionType, {
     title,
-    image_url,
     data_json,
   });
 

@@ -34,16 +34,13 @@ export default async function Home() {
   const configSections = await getSectionsData();
 
   if (!configSite || !configSections) {
-    // Awaryjny stan w przypadku błędu bazy danych
     return <UnderConstructionPage />;
   }
 
-  // GŁÓWNA LOGIKA WARUNKOWA
   if (!configSite.is_published) {
     return <UnderConstructionPage />;
   }
 
-  // Strona opublikowana
   return (
     <LandingPagePreview
       configSections={configSections}
