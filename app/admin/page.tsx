@@ -1,4 +1,8 @@
-import { getSectionsData, getSiteConfig } from "@/lib/supabase/data";
+import {
+  getFooterConfig,
+  getSectionsData,
+  getSiteConfig,
+} from "@/lib/supabase/data";
 import { LandingPagePreview } from "@/components/features/LandingPagePreview";
 import AdminSidebar from "@/components/features/AdminSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -12,11 +16,12 @@ export default async function AdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new Error("UNAUTHORIZED"); // albo redirect("/")
+    throw new Error("UNAUTHORIZED");
   }
 
   const configSite = await getSiteConfig();
   const configSections = await getSectionsData();
+  const configFooter = await getFooterConfig();
 
   if (!configSite || !configSections) {
     return (
@@ -38,6 +43,7 @@ export default async function AdminPage() {
       <AdminSidebar
         initialConfigSite={configSite}
         initialConfigSection={configSections}
+        initialConfigFooter={configFooter}
       />
 
       <main className="flex-1 relative overflow-y-auto">
@@ -48,6 +54,7 @@ export default async function AdminPage() {
         <LandingPagePreview
           configSite={configSite}
           configSections={configSections}
+          configFooter={configFooter}
         />
       </main>
     </>

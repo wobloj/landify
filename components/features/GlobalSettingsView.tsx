@@ -7,6 +7,14 @@ import {
   saveGlobalSettings,
   unpublishPageAction,
 } from "@/app/admin/action";
+import ColorPresets from "./ColorPresets";
+import { useState } from "react";
+import {
+  AlignVerticalJustifyCenterIcon,
+  Palette,
+  Settings2,
+  Wrench,
+} from "lucide-react";
 
 interface GlobalSettingsProps {
   initialSiteConfig: SiteConfig;
@@ -15,6 +23,8 @@ interface GlobalSettingsProps {
 export default function GlobalSettingsView({
   initialSiteConfig,
 }: GlobalSettingsProps) {
+  const [activePreset, setActivePreset] = useState<number | null>(null);
+
   const handleSaveGlobalSettings = async (formData: FormData) => {
     await saveGlobalSettings(formData);
   };
@@ -29,9 +39,10 @@ export default function GlobalSettingsView({
   return (
     <div className="flex flex-col gap-6 py-4 animate-in fade-in slide-in-from-left-4 duration-300">
       {/* Formularz ustawień globalnych */}
-      <form action={handleSaveGlobalSettings} className="flex flex-col gap-4">
-        <div className="space-y-2">
+      <form action={handleSaveGlobalSettings} className="flex flex-col">
+        <div className="space-y-2 mb-6">
           <Label className="text-xs font-semibold uppercase text-muted-foreground">
+            <Settings2 size={18} />
             Główne ustawienia
           </Label>
 
@@ -48,92 +59,78 @@ export default function GlobalSettingsView({
               />
             </div>
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-xs font-semibold uppercase text-muted-foreground">
-            Wygląd
-          </Label>
-
           <div className="flex items-center gap-3 p-3 border rounded-md bg-background">
-            <div className="relative">
-              <Input
-                type="color"
-                name="primary_color"
-                defaultValue={initialSiteConfig.primary_color}
-                className="w-10 h-10 p-0 border-0 rounded-none cursor-pointer overflow-hidden"
-              />
-            </div>
-
-            <div className="flex-1">
-              <Label htmlFor="primary_color" className="text-sm">
-                Kolor Główny
+            <div className="space-y-2  w-full">
+              <Label
+                htmlFor="spacing"
+                className="text-sm flex flex-col items-start gap-0"
+              >
+                Odstęp pomiędzy sekcjami
+                <p className="text-muted-foreground">(w px)</p>
               </Label>
-              <p className="text-xs text-muted-foreground">
-                Motyw przewodni strony
-              </p>
+              <div className="flex flex-row items-center gap-2">
+                <AlignVerticalJustifyCenterIcon size={18} />
+                <div className="flex flex-row justify-between items-center w-full gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    name="spacing"
+                    defaultValue={String(initialSiteConfig.spacing).replace(
+                      "px",
+                      ""
+                    )}
+                    placeholder="16"
+                  />
+                  <p className="text-muted-foreground">px</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 p-3 border rounded-md bg-background">
-            <div className="relative">
-              <Input
-                type="color"
-                name="secondary_color"
-                defaultValue={initialSiteConfig.secondary_color}
-                className="w-10 h-10 p-0 border-0 rounded-none cursor-pointer overflow-hidden"
-              />
-            </div>
-
-            <div className="flex-1">
-              <Label htmlFor="secondary_color" className="text-sm">
-                Kolor Drugorzędny
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Motyw uzupełniający strony
-              </p>
-            </div>
+        <div className="flex flex-col gap-2">
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+              <Palette size={18} />
+              Wygląd
+            </Label>
+            <ColorPresets
+              index={0}
+              activePreset={activePreset}
+              setActivePreset={setActivePreset}
+              colors={["#f8fafc", "#6366f1", "#e5e7eb", "#1e293b", "#6b7280"]}
+            >
+              Clean Slate
+            </ColorPresets>
           </div>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 p-3 border rounded-md bg-background">
-            <div className="relative">
-              <Input
-                type="color"
-                name="bg_color"
-                defaultValue={initialSiteConfig.bg_color}
-                className="w-10 h-10 p-0 border-0 rounded-none cursor-pointer overflow-hidden"
-              />
-            </div>
-
-            <div className="flex-1">
-              <Label htmlFor="bg_color" className="text-sm">
-                Kolor Tła
-              </Label>
-              <p className="text-xs text-muted-foreground">Kolor tła strony</p>
-            </div>
+          <div className="space-y-2">
+            <ColorPresets
+              index={1}
+              activePreset={activePreset}
+              setActivePreset={setActivePreset}
+              colors={["#f8f5f0", "#2e7d32", "#e8f5e9", "#3e2723", "#6d4c41"]}
+            >
+              Earthy Forest Hues
+            </ColorPresets>
           </div>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 p-3 border rounded-md bg-background">
-            <div className="relative">
-              <Input
-                type="color"
-                name="text_color"
-                defaultValue={initialSiteConfig.text_color}
-                className="w-10 h-10 p-0 border-0 rounded-none cursor-pointer overflow-hidden"
-              />
-            </div>
-
-            <div className="flex-1">
-              <Label htmlFor="text_color" className="text-sm">
-                Kolor Czcionki
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Kolor podstawowy czcionki
-              </p>
-            </div>
+          <div className="space-y-2">
+            <ColorPresets
+              index={2}
+              activePreset={activePreset}
+              setActivePreset={setActivePreset}
+              colors={["#DAD7CD", "#A3B18A", "#588157", "#3A5A40", "#344E41"]}
+            >
+              Nature
+            </ColorPresets>
+          </div>
+          <div className="space-y-2">
+            <ColorPresets
+              index={3}
+              activePreset={activePreset}
+              setActivePreset={setActivePreset}
+              colors={["#f9f9f9", "#644a40", "#ffdfb5", "#202020", "#646464"]}
+            >
+              Caffeine
+            </ColorPresets>
           </div>
         </div>
         <div className="pt-2">
@@ -141,11 +138,18 @@ export default function GlobalSettingsView({
             Zapisz Ustawienia Globalne
           </SubmitButton>
         </div>
+
+        <input type="hidden" name="bg_color" />
+        <input type="hidden" name="primary_color" />
+        <input type="hidden" name="secondary_color" />
+        <input type="hidden" name="text_color_primary" />
+        <input type="hidden" name="text_color_secondary" />
       </form>
 
       {/* Panel Publikacji */}
       <div className="space-y-3 pt-4 border-t">
         <Label className="text-xs font-semibold uppercase text-muted-foreground">
+          <Wrench size={18} />
           Status Strony
         </Label>
 

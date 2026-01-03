@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 import { SidebarGroup } from "../ui/sidebar";
 import { Button } from "../ui/button";
 import { useState } from "react";
@@ -26,6 +26,7 @@ export default function SectionSettingsView({
   const heroData = initialConfigSection["hero"];
   const featuresData = initialConfigSection["features"];
   const ctaData = initialConfigSection["cta"];
+
   return (
     <div className="flex flex-col gap-6 py-4 animate-in fade-in slide-in-from-right-4 duration-300">
       {!editingSection && (
@@ -44,7 +45,50 @@ export default function SectionSettingsView({
               setEditingSection={setEditingSection}
             />
           </SidebarGroup>
+          <SidebarGroup>
+            <div
+              className="
+        group
+        grid grid-cols-[auto_1fr_auto]
+        items-stretch
+        mb-2 h-12 last:mb-0
+        bg-background border-2 border-accent rounded-md
+        hover:border-primary/50
+        transition-colors
+      "
+            >
+              <div></div>
 
+              <div
+                className="
+          flex items-center justify-between
+          px-3
+          cursor-pointer select-none
+        "
+              >
+                <span className="font-medium text-sm">STOPKA</span>
+
+                <Edit
+                  className="
+          w-4 h-4 text-muted-foreground
+          opacity-0 group-hover:opacity-100
+          transition-opacity
+        "
+                />
+              </div>
+
+              <div className="flex items-center justify-center px-3">
+                <Trash2
+                  className="
+            w-4 h-4 text-muted-foreground
+            opacity-0 group-hover:opacity-100
+            hover:text-red-300
+            transition-opacity cursor-pointer
+          "
+                />
+              </div>
+            </div>
+          </SidebarGroup>
           <SidebarGroup>
             <p className="text-xs font-semibold uppercase text-muted-foreground mb-3">
               Dostępne komponenty
@@ -83,6 +127,10 @@ export default function SectionSettingsView({
       )}
 
       {editingSection === "cta" && (
+        <CtaEditor ctaData={ctaData} onClick={() => setEditingSection(null)} />
+      )}
+
+      {editingSection === "footer" && (
         <CtaEditor ctaData={ctaData} onClick={() => setEditingSection(null)} />
       )}
     </div>

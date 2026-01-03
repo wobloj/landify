@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 
-
 export async function login(email: string, pass: string) {
   const supabase = await createClient();
 
@@ -15,11 +14,10 @@ export async function login(email: string, pass: string) {
     return { error: error.message, success: false };
   }
 
-  // Sukces! Ciasteczka sesyjne zostały ustawione automatycznie przez createClient
   return { success: true, user: data.user };
 }
 
 export async function logout() {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
+  const supabase = await createClient();
+  await supabase.auth.signOut();
 }

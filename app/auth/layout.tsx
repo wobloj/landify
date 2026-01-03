@@ -1,3 +1,5 @@
 export default function layout({ children }: { children: React.ReactNode }) {
-  return <div>{children}</div>;
+  return (
+    <div className="h-screen flex flex-col justify-center">{children}</div>
+  );
 }

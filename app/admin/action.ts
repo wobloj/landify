@@ -16,7 +16,9 @@ export async function saveGlobalSettings(formData: FormData) {
       primary_color: formData.get("primary_color") as string,
       secondary_color: formData.get("secondary_color") as string,
       bg_color: formData.get("bg_color") as string,
-      text_color: formData.get("text_color") as string,
+      text_color_primary: formData.get("text_color_primary") as string,
+      text_color_secondary: formData.get("text_color_secondary") as string,
+      spacing: (formData.get("spacing") + "px") as string,
     };
 
     // Aktualizujemy tylko pola globalne

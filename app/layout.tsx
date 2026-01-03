@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${openSans.variable} ${openSans.variable} antialiased flex flex-col justify-center items-center gap-4`}
+        className={`${openSans.variable} ${openSans.variable} antialiased flex flex-col justify-center items-center`}
       >
         <ThemeProvider
           attribute="class"

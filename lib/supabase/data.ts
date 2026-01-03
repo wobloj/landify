@@ -9,7 +9,9 @@ export type SiteConfig = {
   primary_color: string;
   secondary_color: string;
   bg_color: string;
-  text_color: string;
+  text_color_primary: string;
+  text_color_secondary: string;
+  spacing: number;
   logo_url: string;
   updated_at: string;
 };
@@ -22,6 +24,12 @@ export type SectionConfig = {
   image_url: string | null;
   data_json: Record<string, any>;
   updated_at: string;
+};
+
+export type FooterConfig = {
+  id: number;
+  email: string;
+  copyright_text: string;
 };
 
 type UpdateSectionPayload = {
@@ -49,6 +57,24 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
   return data;
 }
 
+export async function getFooterConfig(): Promise<SiteConfig | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("footer")
+    .select("*")
+    .limit(1)
+    .single();
+  if (error) {
+    console.error(
+      "Błąd podczas pobierania konfiguracji stopki:",
+      error.message
+    );
+    return null;
+  }
+  console.log("Footer data:", data);
+  return data;
+}
+
 export async function getSectionsData(): Promise<
   Record<string, SectionConfig>
 > {
@@ -67,7 +93,6 @@ export async function getSectionsData(): Promise<
     return {};
   }
 
-  // Przekształcenie tablicy do obiektu, używając section_type jako klucza
   const sectionsMap = (data || []).reduce((acc, section) => {
     acc[section.section_type] = section;
     return acc;
