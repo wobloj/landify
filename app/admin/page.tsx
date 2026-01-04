@@ -6,6 +6,7 @@ import {
 import { LandingPagePreview } from "@/components/features/LandingPagePreview";
 import AdminSidebar from "@/components/features/AdminSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SaveButton } from "@/components/features/SaveButton";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
@@ -46,16 +47,28 @@ export default async function AdminPage() {
         initialConfigFooter={configFooter}
       />
 
-      <main className="flex-1 relative overflow-y-auto">
-        <div className="absolute top-4 left-4 z-50">
-          <SidebarTrigger className="bg-background shadow-xs fixed" />
-        </div>
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <header className="sticky top-0 z-50 bg-sidebar border-b px-6 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-4 bg-background rounded-full fixed">
+            <SidebarTrigger />
+          </div>
+          <div></div>
+          <div className="flex flex-row gap-5 items-center">
+            <div className="flex flex-col text-xs">
+              <p>Ostatni zapis: </p>
+              <p>Automatyczny zapis za: </p>
+            </div>
+            <SaveButton />
+          </div>
+        </header>
 
-        <LandingPagePreview
-          configSite={configSite}
-          configSections={configSections}
-          configFooter={configFooter}
-        />
+        <div className="flex-1 overflow-y-auto">
+          <LandingPagePreview
+            configSite={configSite}
+            configSections={configSections}
+            configFooter={configFooter}
+          />
+        </div>
       </main>
     </>
   );

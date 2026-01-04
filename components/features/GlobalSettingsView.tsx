@@ -1,12 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import SubmitButton from "./SubmitButton";
-import { SiteConfig } from "@/lib/supabase/data";
-import {
-  publishPageAction,
-  saveGlobalSettings,
-  unpublishPageAction,
-} from "@/app/admin/action";
+import { publishPageAction, unpublishPageAction } from "@/app/admin/action";
 import ColorPresets from "./ColorPresets";
 import { useState } from "react";
 import {
@@ -15,6 +9,9 @@ import {
   Settings2,
   Wrench,
 } from "lucide-react";
+import { useChanges } from "@/context/ChangesContext";
+import SubmitButton from "./SubmitButton";
+import { SiteConfig } from "@/lib/types/types";
 
 interface GlobalSettingsProps {
   initialSiteConfig: SiteConfig;
@@ -24,10 +21,8 @@ export default function GlobalSettingsView({
   initialSiteConfig,
 }: GlobalSettingsProps) {
   const [activePreset, setActivePreset] = useState<number | null>(null);
+  const { updateSiteConfig } = useChanges();
 
-  const handleSaveGlobalSettings = async (formData: FormData) => {
-    await saveGlobalSettings(formData);
-  };
   const handlePublishPage = async () => {
     await publishPageAction();
   };
@@ -38,8 +33,8 @@ export default function GlobalSettingsView({
 
   return (
     <div className="flex flex-col gap-6 py-4 animate-in fade-in slide-in-from-left-4 duration-300">
-      {/* Formularz ustawień globalnych */}
-      <form action={handleSaveGlobalSettings} className="flex flex-col">
+      {/* Formularz ustawień globalnych - BEZ action, używamy tylko contextu */}
+      <div className="flex flex-col">
         <div className="space-y-2 mb-6">
           <Label className="text-xs font-semibold uppercase text-muted-foreground">
             <Settings2 size={18} />
@@ -47,20 +42,24 @@ export default function GlobalSettingsView({
           </Label>
 
           <div className="flex items-center gap-3 p-3 border rounded-md bg-background">
-            <div className="space-y-2  w-full">
+            <div className="space-y-2 w-full">
               <Label htmlFor="app_title" className="text-sm">
                 Tytuł strony
               </Label>
               <Input
                 type="text"
                 name="app_title"
+                onChange={(e) =>
+                  updateSiteConfig({ app_title: e.target.value })
+                }
                 defaultValue={initialSiteConfig.app_title}
                 placeholder="Np. Mój Startup"
               />
             </div>
           </div>
+
           <div className="flex items-center gap-3 p-3 border rounded-md bg-background">
-            <div className="space-y-2  w-full">
+            <div className="space-y-2 w-full">
               <Label
                 htmlFor="spacing"
                 className="text-sm flex flex-col items-start gap-0"
@@ -75,6 +74,10 @@ export default function GlobalSettingsView({
                     type="number"
                     min={0}
                     name="spacing"
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0;
+                      updateSiteConfig({ spacing: value });
+                    }}
                     defaultValue={String(initialSiteConfig.spacing).replace(
                       "px",
                       ""
@@ -87,6 +90,7 @@ export default function GlobalSettingsView({
             </div>
           </div>
         </div>
+
         <div className="flex flex-col gap-2">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
@@ -102,6 +106,7 @@ export default function GlobalSettingsView({
               Clean Slate
             </ColorPresets>
           </div>
+
           <div className="space-y-2">
             <ColorPresets
               index={1}
@@ -112,6 +117,7 @@ export default function GlobalSettingsView({
               Earthy Forest Hues
             </ColorPresets>
           </div>
+
           <div className="space-y-2">
             <ColorPresets
               index={2}
@@ -122,6 +128,7 @@ export default function GlobalSettingsView({
               Nature
             </ColorPresets>
           </div>
+
           <div className="space-y-2">
             <ColorPresets
               index={3}
@@ -133,18 +140,7 @@ export default function GlobalSettingsView({
             </ColorPresets>
           </div>
         </div>
-        <div className="pt-2">
-          <SubmitButton className="w-full" size="sm">
-            Zapisz Ustawienia Globalne
-          </SubmitButton>
-        </div>
-
-        <input type="hidden" name="bg_color" />
-        <input type="hidden" name="primary_color" />
-        <input type="hidden" name="secondary_color" />
-        <input type="hidden" name="text_color_primary" />
-        <input type="hidden" name="text_color_secondary" />
-      </form>
+      </div>
 
       {/* Panel Publikacji */}
       <div className="space-y-3 pt-4 border-t">

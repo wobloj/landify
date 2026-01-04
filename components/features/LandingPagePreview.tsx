@@ -55,8 +55,8 @@ export async function LandingPagePreview({
         switch (key) {
           case "hero":
             return (
-              <>
-                <section key="hero" className="text-center">
+              <div key="hero">
+                <section className="text-center">
                   <div className="max-w-4xl mx-auto px-4 rounded-md hover:outline-dashed hover:outline-2 hover:bg-primary/10 cursor-pointer">
                     <h2
                       className="text-5xl font-extrabold tracking-tight sm:text-6xl mb-6"
@@ -73,7 +73,7 @@ export async function LandingPagePreview({
                     </p>
                   </div>
                 </section>
-              </>
+              </div>
             );
 
           case "features":

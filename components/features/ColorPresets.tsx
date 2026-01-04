@@ -1,5 +1,7 @@
 "use client";
 
+import { useChanges } from "@/context/ChangesContext";
+
 type Props = {
   colors: string[];
   children?: React.ReactNode;
@@ -15,24 +17,18 @@ export default function ColorPresets({
   activePreset,
   setActivePreset,
 }: Props) {
+  const { updateSiteConfig } = useChanges();
   const isActive = activePreset === index;
 
   const handleClick = () => {
-    const form = document.querySelector("form");
-    if (!form) return;
-
-    (form.querySelector('[name="bg_color"]') as HTMLInputElement).value =
-      colors[0];
-    (form.querySelector('[name="primary_color"]') as HTMLInputElement).value =
-      colors[1];
-    (form.querySelector('[name="secondary_color"]') as HTMLInputElement).value =
-      colors[2];
-    (
-      form.querySelector('[name="text_color_primary"]') as HTMLInputElement
-    ).value = colors[3];
-    (
-      form.querySelector('[name="text_color_secondary"]') as HTMLInputElement
-    ).value = colors[4];
+    // Aktualizuj wszystkie kolory w contextcie
+    updateSiteConfig({
+      bg_color: colors[0],
+      primary_color: colors[1],
+      secondary_color: colors[2],
+      text_color_primary: colors[3],
+      text_color_secondary: colors[4],
+    });
 
     setActivePreset(index);
   };

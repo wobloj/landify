@@ -1,5 +1,6 @@
-import AdminSidebar from "@/components/features/AdminSidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SaveButton } from "@/components/features/SaveButton";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { ChangesProvider } from "@/context/ChangesContext";
 import React from "react";
 
 export default function AdminLayout({
@@ -8,8 +9,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen flex flex-row w-full">
-      <SidebarProvider>{children}</SidebarProvider>
-    </div>
+    <>
+      <div className="h-screen w-full">
+        <SidebarProvider>
+          <ChangesProvider>{children}</ChangesProvider>
+        </SidebarProvider>
+      </div>
+    </>
   );
 }

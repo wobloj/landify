@@ -1,42 +1,5 @@
+import { FooterConfig, SectionConfig, SiteConfig } from "../types/types";
 import { createClient } from "./server";
-
-export type SectionType = "hero" | "features" | "cta";
-
-export type SiteConfig = {
-  id: number;
-  app_title: string;
-  is_published: boolean;
-  primary_color: string;
-  secondary_color: string;
-  bg_color: string;
-  text_color_primary: string;
-  text_color_secondary: string;
-  spacing: number;
-  logo_url: string;
-  updated_at: string;
-};
-
-export type SectionConfig = {
-  id: number;
-  section_type: SectionType;
-  sort_order: number;
-  title: string;
-  image_url: string | null;
-  data_json: Record<string, any>;
-  updated_at: string;
-};
-
-export type FooterConfig = {
-  id: number;
-  email: string;
-  copyright_text: string;
-};
-
-type UpdateSectionPayload = {
-  title?: string;
-  image_url?: string | null;
-  data_json?: Record<string, any>;
-};
 
 export async function getSiteConfig(): Promise<SiteConfig | null> {
   const supabase = await createClient();
@@ -57,7 +20,7 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
   return data;
 }
 
-export async function getFooterConfig(): Promise<SiteConfig | null> {
+export async function getFooterConfig(): Promise<FooterConfig | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("footer")
@@ -71,7 +34,6 @@ export async function getFooterConfig(): Promise<SiteConfig | null> {
     );
     return null;
   }
-  console.log("Footer data:", data);
   return data;
 }
 
@@ -143,23 +105,20 @@ export async function getSectionConfigByType(
 export async function saveOrderToSection(sections: string[]) {
   const supabase = await createClient();
 
-  // 1. Pobierz ID dla wszystkich sekcji
   const { data: currentSections, error: fetchError } = await supabase
     .from("section_config")
     .select("id, section_type");
 
   if (fetchError) {
     console.error("Błąd podczas pobierania ID sekcji:", fetchError.message);
-    throw new Error(fetchError.message); // Wyrzucenie oryginalnego błędu
+    throw new Error(fetchError.message);
   }
 
-  // Utwórz mapę section_type -> id
   const idMap = (currentSections || []).reduce((acc, section) => {
     acc[section.section_type] = section.id;
     return acc;
   }, {} as Record<string, number>);
 
-  // 2. Przygotuj tablicę obietnic aktualizacji
   const updatePromises = sections
     .map((section_type, index) => {
       const id = idMap[section_type];
@@ -170,7 +129,6 @@ export async function saveOrderToSection(sections: string[]) {
         return null;
       }
 
-      // Tworzymy obietnicę pojedynczej operacji UPDATE
       return supabase
         .from("section_config")
         .update({ sort_order: index })
@@ -179,13 +137,10 @@ export async function saveOrderToSection(sections: string[]) {
     .filter((p): p is Promise<any> => p !== null);
 
   if (updatePromises.length === 0) {
-    return; // Brak sekcji do aktualizacji
+    return;
   }
 
-  // 3. Wykonaj wszystkie aktualizacje równolegle
   const results = await Promise.all(updatePromises);
-
-  // 4. Sprawdź, czy wystąpiły błędy
   const firstError = results.find((result) => result?.error);
 
   if (firstError && firstError.error) {
@@ -194,7 +149,6 @@ export async function saveOrderToSection(sections: string[]) {
       "Błąd podczas aktualizacji kolejności sekcji:",
       updateError.message
     );
-    // Wyrzucamy dokładny błąd Supabase
     throw new Error(
       `Błąd podczas aktualizacji kolejności: ${updateError.message}`
     );
@@ -250,5 +204,16 @@ export async function updateSectionContent(
   if (error) {
     console.error(`[updateSectionContent] ${sectionType}`, error);
     throw new Error("Nie udało się zapisać sekcji strony.");
+  }
+}
+
+export async function updateFooterContent(updates: Partial<FooterConfig>) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("footer").update(updates).eq("id", 1);
+
+  if (error) {
+    console.error("Błąd podczas aktualizacji stopki:", error.message);
+    throw new Error("Nie udało się zapisać stopki.");
   }
 }

@@ -3,9 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@radix-ui/react-label";
 import { ChevronLeft } from "lucide-react";
-import SubmitButton from "../SubmitButton";
-import { HeroType } from "@/lib/supabase/types/sectionTypes";
-import { saveSectionSettings } from "@/app/admin/action";
+import { HeroType } from "@/lib/types/types";
+import { useChanges } from "@/context/ChangesContext";
 
 interface HeroEditorProps {
   heroData: HeroType;
@@ -13,6 +12,8 @@ interface HeroEditorProps {
 }
 
 export default function HeroEditor({ heroData, onClick }: HeroEditorProps) {
+  const { updateSection } = useChanges();
+
   return (
     <div className="animate-in slide-in-from-right-8 duration-300">
       <div className="flex items-center gap-2 mb-6">
@@ -22,28 +23,32 @@ export default function HeroEditor({ heroData, onClick }: HeroEditorProps) {
         </Button>
       </div>
 
-      <form action={saveSectionSettings}>
-        <input type="hidden" name="section_type" value="hero" />
-
-        <div className="space-y-4 bg-background rounded-xl p-4">
-          <div className="space-y-2">
-            <Label>Nagłówek</Label>
-            <Input name="title" defaultValue={heroData.title} />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Podtytuł</Label>
-            <Textarea
-              name="subtitle"
-              defaultValue={heroData.data_json.subtitle}
-            />
-          </div>
+      <div className="space-y-4 bg-background rounded-xl p-4">
+        <div className="space-y-2">
+          <Label>Nagłówek</Label>
+          <Input
+            name="title"
+            defaultValue={heroData.title}
+            onChange={(e) => updateSection("hero", { title: e.target.value })}
+          />
         </div>
 
-        <SubmitButton className="w-full" size="sm">
-          Zapisz zmiany w Hero
-        </SubmitButton>
-      </form>
+        <div className="space-y-2">
+          <Label>Podtytuł</Label>
+          <Textarea
+            name="subtitle"
+            defaultValue={heroData.data_json.subtitle}
+            onChange={(e) =>
+              updateSection("hero", {
+                data_json: {
+                  ...heroData.data_json,
+                  subtitle: e.target.value,
+                },
+              })
+            }
+          />
+        </div>
+      </div>
     </div>
   );
 }
