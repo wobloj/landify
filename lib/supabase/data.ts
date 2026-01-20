@@ -1,4 +1,10 @@
-import { FooterConfig, SectionConfig, SiteConfig } from "../types/types";
+import {
+  FooterConfig,
+  SectionConfig,
+  SiteConfig,
+  WipConfig,
+} from "../types/types";
+import { getDefaultSectionData } from "./sections/defaultSectionData";
 import { createClient } from "./server";
 
 export async function getSiteConfig(): Promise<SiteConfig | null> {
@@ -34,6 +40,7 @@ export async function getFooterConfig(): Promise<FooterConfig | null> {
     );
     return null;
   }
+
   return data;
 }
 
@@ -45,7 +52,8 @@ export async function getSectionsData(): Promise<
   const { data, error } = await supabase
     .from("section_config")
     .select("*")
-    .order("sort_order", { ascending: false });
+    .order("sort_order", { ascending: false })
+    .neq("is_deleted", true);
 
   if (error) {
     console.error(
@@ -78,6 +86,26 @@ export async function getSectionsName() {
     );
   }
   return data || {};
+}
+
+export async function getWipData(): Promise<WipConfig | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("wip")
+    .select("*")
+    .limit(1)
+    .single();
+  if (error) {
+    console.error(
+      "Błąd podczas pobierania konfiguracji stopki:",
+      error.message
+    );
+    return null;
+  }
+
+  console.log("Wip data:", data);
+
+  return data;
 }
 
 export async function getSectionConfigByType(
@@ -216,4 +244,28 @@ export async function updateFooterContent(updates: Partial<FooterConfig>) {
     console.error("Błąd podczas aktualizacji stopki:", error.message);
     throw new Error("Nie udało się zapisać stopki.");
   }
+}
+
+export async function setSectionVisibility(
+  section_type: string,
+  is_deleted: boolean
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("section_config")
+    .update({ is_deleted })
+    .eq("section_type", section_type);
+
+  if (error) throw error;
+}
+
+export async function softDeleteSectionById(id: number) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("section_config")
+    .update({ is_deleted: true })
+    .eq("id", id);
+
+  if (error) throw error;
 }

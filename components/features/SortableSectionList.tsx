@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -18,16 +18,36 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { GripVertical, Edit, Trash2 } from "lucide-react";
-import { saveSectionOrder } from "@/app/admin/action";
+import { saveSectionOrder, deleteSection } from "@/app/admin/action";
+import { useSectionSelection } from "@/context/SectionSelectionContext";
+
+type SectionItem = {
+  section_type: string;
+  sort_order?: number;
+  is_deleted?: boolean;
+};
+
+interface SortableSectionListProps {
+  initialSections: SectionItem[];
+  setEditingSection: (name: string) => void;
+}
 
 export default function SortableSectionList({
   initialSections,
   setEditingSection,
-}: {
-  initialSections: string[];
-  setEditingSection: (name: string) => void;
-}) {
-  const [sections, setSections] = useState(initialSections);
+}: SortableSectionListProps) {
+  // ⬇️ filtrujemy tylko widoczne sekcje
+  const [sections, setSections] = useState<SectionItem[]>([]);
+  const { setSelectedSection } = useSectionSelection();
+
+  const handleSectionClick = (sectionType: string) => {
+    // WAŻNE: Używamy shouldScroll=true aby przewinąć do sekcji
+    setSelectedSection(sectionType as any, true); // true = scroll to section
+  };
+
+  useEffect(() => {
+    setSections(initialSections.filter((s) => !s.is_deleted));
+  }, [initialSections]);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -35,13 +55,18 @@ export default function SortableSectionList({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = sections.indexOf(active.id as string);
-    const newIndex = sections.indexOf(over.id as string);
+    const oldIndex = sections.findIndex((s) => s.section_type === active.id);
+    const newIndex = sections.findIndex((s) => s.section_type === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
 
     const newOrder = arrayMove(sections, oldIndex, newIndex);
     setSections(newOrder);
 
-    const result = await saveSectionOrder(newOrder);
+    // backend nadal operuje na section_type
+    const order = newOrder.map((s) => s.section_type);
+    const result = await saveSectionOrder(order);
+
     if (!result?.success) {
       console.error(result?.message);
     }
@@ -53,14 +78,28 @@ export default function SortableSectionList({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={sections} strategy={verticalListSortingStrategy}>
+      <SortableContext
+        items={sections.map((s) => s.section_type)}
+        strategy={verticalListSortingStrategy}
+      >
         <div className="flex flex-col">
           {sections.map((section) => (
             <SortableRow
-              key={section}
-              id={section}
-              label={section}
-              setEditingSection={setEditingSection}
+              key={section.section_type}
+              id={section.section_type}
+              label={section.section_type}
+              onEdit={() => {
+                setEditingSection(section.section_type);
+                handleSectionClick(section.section_type);
+              }}
+              onHide={async () => {
+                await deleteSection(section.section_type);
+
+                // 🔁 natychmiastowa synchronizacja UI
+                setSections((prev) =>
+                  prev.filter((s) => s.section_type !== section.section_type)
+                );
+              }}
             />
           ))}
         </div>
@@ -69,14 +108,18 @@ export default function SortableSectionList({
   );
 }
 
+/* ───────────────────────────── */
+
 function SortableRow({
   id,
   label,
-  setEditingSection,
+  onEdit,
+  onHide,
 }: {
   id: string;
   label: string;
-  setEditingSection: (name: string) => void;
+  onEdit: () => void;
+  onHide: () => void;
 }) {
   const {
     attributes,
@@ -107,6 +150,7 @@ function SortableRow({
         transition-colors
       "
     >
+      {/* Drag */}
       <div
         {...attributes}
         {...listeners}
@@ -121,27 +165,30 @@ function SortableRow({
         <GripVertical className="w-5 h-5 text-muted-foreground" />
       </div>
 
+      {/* Edit */}
       <div
-        onClick={() => setEditingSection(label)}
+        onClick={onEdit}
         className="
           flex items-center justify-between
           px-3
           cursor-pointer select-none
         "
       >
-        <span className="font-medium text-sm">{label.toUpperCase()}</span>
+        <span className="font-semibold text-sm">{label.toUpperCase()}</span>
 
         <Edit
           className="
-          w-4 h-4 text-muted-foreground
-          opacity-0 group-hover:opacity-100
-          transition-opacity
-        "
+            w-4 h-4 text-muted-foreground
+            opacity-0 group-hover:opacity-100
+            transition-opacity
+          "
         />
       </div>
 
+      {/* Hide (soft delete) */}
       <div className="flex items-center justify-center px-3">
         <Trash2
+          onClick={onHide}
           className="
             w-4 h-4 text-muted-foreground
             opacity-0 group-hover:opacity-100

@@ -9,6 +9,8 @@ import {
   getSiteConfig,
   getSectionsData,
   getFooterConfig,
+  softDeleteSectionById,
+  setSectionVisibility,
 } from "@/lib/supabase/data";
 import { ChangeSet, SaveResult } from "@/lib/types/types";
 
@@ -318,6 +320,38 @@ export async function unpublishPageAction() {
     return {
       success: false,
       message: error.message || "Błąd de-publikacji strony.",
+    };
+  }
+}
+
+export async function addSection(sectionType: string) {
+  try {
+    await setSectionVisibility(sectionType, false);
+
+    revalidatePath("/admin");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Błąd włączania sekcji.",
+    };
+  }
+}
+
+export async function deleteSection(sectionType: string) {
+  try {
+    await setSectionVisibility(sectionType, true);
+
+    revalidatePath("/admin");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Błąd ukrywania sekcji.",
     };
   }
 }

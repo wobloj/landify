@@ -1,9 +1,8 @@
-import { SaveButton } from "@/components/features/SaveButton";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { ChangesProvider } from "@/context/ChangesContext";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
-
-export default function AdminLayout({
+import { SectionSelectionProvider } from "@/context/SectionSelectionContext";
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -11,9 +10,11 @@ export default function AdminLayout({
   return (
     <>
       <div className="h-screen w-full">
-        <SidebarProvider>
-          <ChangesProvider>{children}</ChangesProvider>
-        </SidebarProvider>
+        <SectionSelectionProvider>
+          <SidebarProvider>
+            <ChangesProvider>{children}</ChangesProvider>
+          </SidebarProvider>
+        </SectionSelectionProvider>
       </div>
     </>
   );

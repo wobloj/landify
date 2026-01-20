@@ -59,13 +59,59 @@ export type SectionConfig = {
   title: string;
   image_url: string | null;
   data_json: Record<string, any>;
+  is_deleted?: boolean;
   updated_at: string;
+};
+
+export type ImagesSectionType = {
+  id: number;
+  section_type: string;
+  sort_order: number;
+  title: string;
+  data_json: {
+    desc: string;
+    images: {
+      id: string;
+      url: string;
+      order: number;
+    }[];
+  };
+  updated_at: string;
+};
+
+export type VideoSectionType = {
+  id: number;
+  title: string;
+  data_json: {
+    desc: string;
+    url: string;
+  };
+};
+
+export type BlankSectionType = {
+  id: number;
+  title: string;
+  data_json: {
+    desc: string;
+    columns: string[];
+  };
 };
 
 export type FooterConfig = {
   id: number;
   email: string;
   copyright_text: string;
+  socials_json: {
+    socials: {
+      icon: string;
+      link: string;
+    };
+  };
+};
+
+export type WipConfig = {
+  title: string;
+  desc: string;
 };
 
 export type SiteConfigChanges = Partial<
@@ -76,17 +122,33 @@ export type SiteConfigChanges = Partial<
 
 export type ChangeSet = {
   siteConfig?: SiteConfigChanges;
+
   sections?: {
-    [sectionType: string]: {
-      title?: string;
-      image_url?: string | null;
-      data_json?: Record<string, any>;
+    // HERO / CTA / FEATURES (tylko jedna)
+    single?: {
+      [sectionType: string]: {
+        title?: string;
+        image_url?: string | null;
+        data_json?: Record<string, any>;
+      };
+    };
+
+    // IMAGES / VIDEO / BLANK (wiele)
+    multiple?: {
+      [id: number]: {
+        section_type: "images" | "video" | "blank";
+        title?: string;
+        image_url?: string | null;
+        data_json?: Record<string, any>;
+      };
     };
   };
+
   footer?: {
     email?: string;
     copyright_text?: string;
   };
+
   sectionOrder?: string[];
 };
 
@@ -99,4 +161,10 @@ export type SaveResult = {
     footer?: boolean;
     sectionOrder?: boolean;
   };
+};
+
+export type FullConfig = {
+  siteConfig: SiteConfig;
+  sections: SectionConfig[];
+  footer?: FooterConfig;
 };
