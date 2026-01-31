@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/carousel";
 import { SectionConfig, SiteConfig } from "@/lib/types/types";
 import Image from "next/image";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ImageIcon } from "lucide-react";
 
 type ImagesProps = {

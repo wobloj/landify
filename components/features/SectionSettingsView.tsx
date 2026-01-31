@@ -7,7 +7,7 @@ import CtaEditor from "./editors/CtaEditor";
 import SortableSectionList from "./SortableSectionList";
 import { SectionConfig } from "@/lib/types/types";
 import { AVAILABLE_SECTIONS } from "@/lib/consts/sections";
-import { addSection } from "@/app/admin/action";
+import { addSection } from "@/app/admin/actions";
 import { VideoEditor } from "./editors/VideoEditor";
 import { ImagesEditor } from "./editors/ImageEditor";
 import { BlankEditor } from "./editors/BlankEditor";
@@ -33,7 +33,7 @@ export default function SectionSettingsView({
     }));
 
   const enabledSections = new Set(
-    initialSections.filter((s) => !s.is_deleted).map((s) => s.section_type)
+    initialSections.filter((s) => !s.is_deleted).map((s) => s.section_type),
   );
 
   const heroData = initialConfigSection["hero"];

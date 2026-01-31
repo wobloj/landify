@@ -11,11 +11,6 @@ import { UnsavedChangesIndicator } from "@/components/features/UnsavedChangesInd
 import { createClient } from "@/lib/supabase/server";
 import { AutoSaveCountdown } from "@/components/features/AutoSaveCountdown";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import Link from "next/link";
 
 export default async function AdminPage() {

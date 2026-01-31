@@ -228,7 +228,7 @@ export function ImagesEditor({
         // ✅ KLUCZOWE: Resetuj FileInput poprzez zmianę key
         setFileInputKey((prev) => prev + 1);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Upload error:", err);
     } finally {
       setUploading(false);

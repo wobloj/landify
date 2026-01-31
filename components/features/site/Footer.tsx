@@ -33,7 +33,7 @@ export default function Footer({ configFooter, configSite }: FooterProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <p style={{ color: configSite.text_color_primary }}>
-          {configFooter.copyright_text}
+          {configFooter.copyright_text} &#169; {new Date().getFullYear()}
         </p>
         <p style={{ color: configSite.text_color_secondary }}>
           {configFooter.email}

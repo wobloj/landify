@@ -1,4 +1,4 @@
-import AuthForm from "@/components/forms/auth-form";
+import AuthPage from "@/components/features/AuthPage";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -10,13 +10,12 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect("/admin");
+    redirect("/dashboard");
   }
 
   return (
-    <div>
-      <p className="text-4xl font-semibold mb-20">Witaj w Landify</p>
-      <AuthForm />
-    </div>
+    <>
+      <AuthPage />
+    </>
   );
 }

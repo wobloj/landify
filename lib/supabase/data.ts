@@ -19,7 +19,7 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
   if (error) {
     console.error(
       "Błąd podczas pobierania konfiguracji strony:",
-      error.message
+      error.message,
     );
     return null;
   }
@@ -36,7 +36,7 @@ export async function getFooterConfig(): Promise<FooterConfig | null> {
   if (error) {
     console.error(
       "Błąd podczas pobierania konfiguracji stopki:",
-      error.message
+      error.message,
     );
     return null;
   }
@@ -58,15 +58,18 @@ export async function getSectionsData(): Promise<
   if (error) {
     console.error(
       "Błąd podczas pobierania tabeli section_config:",
-      error.message
+      error.message,
     );
     return {};
   }
 
-  const sectionsMap = (data || []).reduce((acc, section) => {
-    acc[section.section_type] = section;
-    return acc;
-  }, {} as Record<string, SectionConfig>);
+  const sectionsMap = (data || []).reduce(
+    (acc, section) => {
+      acc[section.section_type] = section;
+      return acc;
+    },
+    {} as Record<string, SectionConfig>,
+  );
 
   return sectionsMap;
 }
@@ -82,7 +85,7 @@ export async function getSectionsName() {
   if (error) {
     console.error(
       "Błąd podczas pobierania tabeli section_config:",
-      error.message
+      error.message,
     );
   }
   return data || {};
@@ -90,15 +93,11 @@ export async function getSectionsName() {
 
 export async function getWipData(): Promise<WipConfig | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("wip")
-    .select("*")
-    .limit(1)
-    .single();
+  const { data, error } = await supabase.from("wip").select("*").single();
   if (error) {
     console.error(
       "Błąd podczas pobierania konfiguracji stopki:",
-      error.message
+      error.message,
     );
     return null;
   }
@@ -109,7 +108,7 @@ export async function getWipData(): Promise<WipConfig | null> {
 }
 
 export async function getSectionConfigByType(
-  sectionType: string
+  sectionType: string,
 ): Promise<SectionConfig | null> {
   const supabase = await createClient();
 
@@ -122,7 +121,7 @@ export async function getSectionConfigByType(
   if (error) {
     console.error(
       "Błąd podczas pobierania konfiguracji sekcji:",
-      error.message
+      error.message,
     );
     return null;
   }
@@ -142,17 +141,20 @@ export async function saveOrderToSection(sections: string[]) {
     throw new Error(fetchError.message);
   }
 
-  const idMap = (currentSections || []).reduce((acc, section) => {
-    acc[section.section_type] = section.id;
-    return acc;
-  }, {} as Record<string, number>);
+  const idMap = (currentSections || []).reduce(
+    (acc, section) => {
+      acc[section.section_type] = section.id;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const updatePromises = sections
     .map((section_type, index) => {
       const id = idMap[section_type];
       if (id === undefined) {
         console.warn(
-          `Sekcja typu '${section_type}' nie została znaleziona w bazie danych. Pomijanie.`
+          `Sekcja typu '${section_type}' nie została znaleziona w bazie danych. Pomijanie.`,
         );
         return null;
       }
@@ -175,10 +177,10 @@ export async function saveOrderToSection(sections: string[]) {
     const updateError = firstError.error;
     console.error(
       "Błąd podczas aktualizacji kolejności sekcji:",
-      updateError.message
+      updateError.message,
     );
     throw new Error(
-      `Błąd podczas aktualizacji kolejności: ${updateError.message}`
+      `Błąd podczas aktualizacji kolejności: ${updateError.message}`,
     );
   }
 }
@@ -194,7 +196,7 @@ export async function updatePublishStatus(isPublished: boolean) {
   if (error) {
     console.error(
       "Błąd podczas aktualizacji statusu publikacji:",
-      error.message
+      error.message,
     );
     throw new Error("Nie udało się zaktualizować statusu publikacji.");
   }
@@ -220,7 +222,7 @@ export async function updateSectionContent(
     title?: string;
     image_url?: string | null;
     data_json?: any;
-  }
+  },
 ) {
   const supabase = await createClient();
 
@@ -248,7 +250,7 @@ export async function updateFooterContent(updates: Partial<FooterConfig>) {
 
 export async function setSectionVisibility(
   section_type: string,
-  is_deleted: boolean
+  is_deleted: boolean,
 ) {
   const supabase = await createClient();
 

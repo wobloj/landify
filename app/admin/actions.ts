@@ -9,7 +9,6 @@ import {
   getSiteConfig,
   getSectionsData,
   getFooterConfig,
-  softDeleteSectionById,
   setSectionVisibility,
 } from "@/lib/supabase/data";
 import { ChangeSet, SaveResult } from "@/lib/types/types";
@@ -30,7 +29,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
       const currentConfig = await getSiteConfig();
       const actualChanges = compareAndFilterChanges(
         currentConfig,
-        changes.siteConfig
+        changes.siteConfig,
       );
 
       if (Object.keys(actualChanges).length > 0) {
@@ -52,14 +51,14 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
       const updatedSections: string[] = [];
 
       for (const [sectionType, sectionChanges] of Object.entries(
-        changes.sections
+        changes.sections,
       )) {
         const currentSection = currentSections[sectionType];
         if (!currentSection) continue;
 
         const actualChanges = compareAndFilterSectionChanges(
           currentSection,
-          sectionChanges
+          sectionChanges,
         );
 
         if (Object.keys(actualChanges).length > 0) {
@@ -79,7 +78,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
       const currentFooter = await getFooterConfig();
       const actualChanges = compareAndFilterChanges(
         currentFooter,
-        changes.footer
+        changes.footer,
       );
 
       if (Object.keys(actualChanges).length > 0) {
@@ -132,7 +131,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
  */
 function compareAndFilterChanges<T extends Record<string, any>>(
   current: T | null,
-  changes: Partial<T>
+  changes: Partial<T>,
 ): Partial<T> {
   if (!current) return changes;
 
@@ -163,7 +162,7 @@ function compareAndFilterSectionChanges(
     title?: string;
     image_url?: string | null;
     data_json?: Record<string, any>;
-  }
+  },
 ) {
   const actualChanges: any = {};
 

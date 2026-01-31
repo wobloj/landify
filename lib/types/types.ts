@@ -36,7 +36,13 @@ export type CtaType = {
   image?: string;
 };
 
-export type SectionType = "hero" | "features" | "cta";
+export type SectionType =
+  | "hero"
+  | "features"
+  | "cta"
+  | "images"
+  | "video"
+  | "blank";
 
 export type SiteConfig = {
   id: number;
@@ -147,6 +153,12 @@ export type ChangeSet = {
   footer?: {
     email?: string;
     copyright_text?: string;
+    socials_json?: {
+      socials: {
+        icon: string;
+        link: string;
+      }[];
+    };
   };
 
   sectionOrder?: string[];

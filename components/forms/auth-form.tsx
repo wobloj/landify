@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 // Importujemy Server Action z absolutnej ścieżki
-import { login } from "@/app/auth/action";
+import { login } from "@/app/auth/actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -108,7 +108,7 @@ export default function AuthForm() {
         />
         <Button
           type="submit"
-          className="mt-4 w-full cursor-pointer"
+          className="mt-4 mx-auto w-3/5 cursor-pointer"
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting ? (

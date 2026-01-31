@@ -16,7 +16,7 @@ export default function DotNavigation() {
           }
         });
       },
-      { threshold: 0.6 }
+      { threshold: 0.6 },
     );
 
     sections.forEach((id) => {
@@ -45,7 +45,7 @@ export default function DotNavigation() {
                 ?.scrollIntoView({ behavior: "smooth" })
             }
             className={`w-3 h-3 rounded-full transition hover:outline-2
-            ${active === id ? "bg-primary scale-125" : "bg-accent"}
+            ${active === id ? "bg-primary scale-125" : "bg-secondary"}
           `}
           />
         </div>

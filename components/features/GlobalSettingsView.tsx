@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { publishPageAction, unpublishPageAction } from "@/app/admin/action";
+import { publishPageAction, unpublishPageAction } from "@/app/admin/actions";
 import ColorPresets from "./ColorPresets";
 import { useState } from "react";
 import {
@@ -21,10 +21,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
-import { updateFooterContent } from "@/lib/supabase/data";
 import DropdownSocials from "./DropdownSocials";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
+import FooterEditor from "./editors/FooterEditor";
 
 interface GlobalSettingsProps {
   initialSiteConfig: SiteConfig;
@@ -98,7 +98,7 @@ export default function GlobalSettingsView({
                       }}
                       defaultValue={String(initialSiteConfig.spacing).replace(
                         "px",
-                        ""
+                        "",
                       )}
                       placeholder="16"
                     />
@@ -173,58 +173,7 @@ export default function GlobalSettingsView({
             <ArrowDown size={18} />
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-2 mb-4">
-            <div className="flex flex-col items-center gap-3 ">
-              <div className="space-y-2 w-full p-3 border rounded-md bg-background">
-                <Label htmlFor="copyright_text" className="text-sm">
-                  Tekst w stopce
-                </Label>
-                <Input
-                  type="text"
-                  name="copyright_text"
-                  onChange={(e) =>
-                    updateFooter({ copyright_text: e.target.value })
-                  }
-                  defaultValue={initialFooterConfig.copyright_text}
-                  placeholder="Np. Mój Startup"
-                />
-              </div>
-              <div className="space-y-2 w-full p-3 border rounded-md bg-background">
-                <Label htmlFor="copyright_text" className="text-sm">
-                  Email do kontaktu
-                </Label>
-                <Input
-                  type="text"
-                  name="email"
-                  onChange={(e) => updateFooter({ email: e.target.value })}
-                  defaultValue={initialFooterConfig.email}
-                  placeholder="Np. Mój Startup"
-                />
-              </div>
-              <div className="space-y-2 w-full p-3 border rounded-md bg-background">
-                <Label htmlFor="copyright_text" className="text-sm">
-                  Social
-                </Label>
-                <div className="ml-2 flex flex-col gap-2">
-                  {initialFooterConfig.socials_json.socials.map(
-                    (social, index: number) => (
-                      <div
-                        key={index}
-                        className="flex flex-col items-center gap-2"
-                      >
-                        <DropdownSocials icon={social.icon} />
-                        <Input
-                          type="text"
-                          name="social"
-                          defaultValue={social.link}
-                          placeholder="Np. Mój Startup"
-                        />
-                        <Separator className="my-2" />
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            </div>
+            <FooterEditor initialFooterConfig={initialFooterConfig} />
           </CollapsibleContent>
         </Collapsible>
         <Collapsible defaultOpen={true}>

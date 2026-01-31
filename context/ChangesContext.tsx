@@ -8,7 +8,7 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import { saveAllChanges } from "@/app/admin/action";
+import { saveAllChanges } from "@/app/admin/actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { ChangeSet } from "@/lib/types/types";
@@ -19,7 +19,7 @@ type ChangesContextType = {
   updateSiteConfig: (updates: Partial<ChangeSet["siteConfig"]>) => void;
   updateSection: (
     sectionType: string,
-    updates: ChangeSet["sections"][string]
+    updates: ChangeSet["sections"][string],
   ) => void;
   updateFooter: (updates: ChangeSet["footer"]) => void;
   updateSectionOrder: (order: string[]) => void;
@@ -140,7 +140,7 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
         },
       }));
     },
-    []
+    [],
   );
 
   const updateSection = useCallback(
@@ -156,7 +156,7 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
         },
       }));
     },
-    []
+    [],
   );
 
   const updateFooter = useCallback((updates: ChangeSet["footer"]) => {

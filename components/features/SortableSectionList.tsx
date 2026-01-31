@@ -18,7 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { GripVertical, Edit, Trash2 } from "lucide-react";
-import { saveSectionOrder, deleteSection } from "@/app/admin/action";
+import { saveSectionOrder, deleteSection } from "@/app/admin/actions";
 import { useSectionSelection } from "@/context/SectionSelectionContext";
 
 type SectionItem = {
@@ -97,7 +97,7 @@ export default function SortableSectionList({
 
                 // 🔁 natychmiastowa synchronizacja UI
                 setSections((prev) =>
-                  prev.filter((s) => s.section_type !== section.section_type)
+                  prev.filter((s) => s.section_type !== section.section_type),
                 );
               }}
             />
