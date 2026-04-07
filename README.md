@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Landify
 
-## Getting Started
+Landify to aplikacja CMS oparta na Next.js, która umożliwia tworzenie, edycję i publikację stron typu landing page przez panel administracyjny.
 
-First, run the development server:
+## Opis projektu
+
+Aplikacja pozwala użytkownikom zarządzać stronami za pomocą narzędzi dostępnych na stronie. Celem jest szybkie i wygodne tworzenie stron CMS z edycją treści, obrazów i podglądem w czasie rzeczywistym.
+
+## Najważniejsze funkcjonalności
+
+- panel administracyjny do edycji stron
+- obsługa wielu stron użytkownika
+- wizualny podgląd strony w panelu admina
+- edycja sekcji takich jak Hero, About, How It Works i FAQ
+- upload obrazów przez drag & drop
+- zapis zmian do bazy danych (Supabase)
+- wskaźnik nies zapisanych zmian oraz automatyczne odliczanie
+- przejrzysta nawigacja po sekcjach strony publicznej
+- generowanie publicznej strony pod `/site/[slug]`
+
+## Technologie
+
+Projekt używa następujących technologii i bibliotek:
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Supabase (auth, storage, baza danych)
+- Radix UI
+- DND Kit
+- Stripe
+- Lexical
+
+## Struktura projektu
+
+- `app/` — routing aplikacji, strony publiczne i panel admina
+- `components/` — komponenty UI, edytory, podgląd strony i narzędzia
+- `components/features/` — moduły funkcjonalne, np. `DotNavigation`, `DragAndDropFiles`, `LandingPagePreview`
+- `components/features/editors/` — edytory sekcji strony, np. `HeroEditor`, `ImageEditor`
+- `lib/` — konfiguracja Supabase, helpery, typy i logika serwerowa
+- `context/` — zarządzanie stanem zmian podczas edycji
+
+## Uruchamianie lokalne
+
+1. Zainstaluj zależności:
+
+```bash
+npm install
+```
+
+2. Skonfiguruj zmienne środowiskowe. Przykładowe wartości:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+```
+
+3. Uruchom aplikację lokalnie:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Otwórz stronę w przeglądarce:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Skrypty
 
-## Learn More
+- `npm run dev` — uruchamia serwer deweloperski
+- `npm run build` — buduje aplikację do produkcji
+- `npm run start` — uruchamia zbudowaną aplikację
+- `npm run lint` — sprawdza kod przy użyciu ESLint
 
-To learn more about Next.js, take a look at the following resources:
+## Jak korzystać
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Zaloguj się i przejdź do panelu admina.
+2. Wybierz istniejącą stronę lub utwórz nową.
+3. Edytuj dostępne sekcje i przesyłaj obrazy.
+4. Zachowaj zmiany i sprawdź podgląd strony.
+5. Otwórz publiczną wersję strony przez `/site/[slug]`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Uwagi
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Jeżeli nie ma jeszcze obrazu zapisanej w bazie, edytor obrazu nie wyświetli podglądu, dopóki nie zostanie przesłany nowy plik. Wszystkie dane strony są przechowywane w Supabase, co pozwala wygodnie zarządzać zawartością przy pomocy panelu CMS.
