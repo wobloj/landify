@@ -86,6 +86,3 @@ http://localhost:3000
 4. Zachowaj zmiany i sprawdź podgląd strony.
 5. Otwórz publiczną wersję strony przez `/site/[slug]`.
 
-## Uwagi
-
-Jeżeli nie ma jeszcze obrazu zapisanej w bazie, edytor obrazu nie wyświetli podglądu, dopóki nie zostanie przesłany nowy plik. Wszystkie dane strony są przechowywane w Supabase, co pozwala wygodnie zarządzać zawartością przy pomocy panelu CMS.
