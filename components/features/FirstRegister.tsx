@@ -8,6 +8,7 @@ import Plans from "./Plans";
 import { Input } from "../ui/input";
 import { useRouter } from "next/navigation";
 import { updateDisplayName } from "@/app/start/actions";
+import Notification from "./Notification";
 
 export default function FirstRegister() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -84,6 +85,12 @@ export default function FirstRegister() {
             transition={{ duration: 0.35, ease: "easeInOut" }}
             className="absolute inset-0 flex items-center justify-center overflow-y-auto py-10"
           >
+            <Notification>
+              Aktualne płatności za subskrypcje są darmowe, by pomyślnie przejść
+              płatność wpisz numer karty
+              <span className="font-bold">4242 4242 4242 4242</span>
+              oraz dowolną datę ważności i kod CVC.
+            </Notification>
             <Plans />
           </motion.div>
         )}

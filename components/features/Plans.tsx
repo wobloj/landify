@@ -78,7 +78,7 @@ export default function Plans() {
         </div>
 
         <CardFooter className="flex flex-col gap-2">
-          <div>
+          <div className="flex flex-col items-center">
             <p className="text-3xl font-bold">$0</p>
             <p className="text-xs text-muted-foreground">na zawsze</p>
           </div>
@@ -125,7 +125,7 @@ export default function Plans() {
         </div>
 
         <CardFooter className="flex flex-col gap-2">
-          <div>
+          <div className="flex flex-col items-center">
             <p className="text-3xl font-bold">${STRIPE_PLANS.basic.price}</p>
             <p className="text-xs text-muted-foreground">miesięcznie</p>
           </div>
@@ -169,7 +169,7 @@ export default function Plans() {
         </div>
 
         <CardFooter className="flex flex-col gap-2">
-          <div>
+          <div className="flex flex-col items-center">
             <p className="text-3xl font-bold">${STRIPE_PLANS.premium.price}</p>
             <p className="text-xs text-muted-foreground">miesięcznie</p>
           </div>

@@ -3,7 +3,13 @@ import { Switch } from "../ui/switch";
 import { useId, useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 
-export default function DarkModeSwitch() {
+type DarkModeSwitchProps = {
+  isAbsolute?: boolean;
+};
+
+export default function DarkModeSwitch({
+  isAbsolute = false,
+}: DarkModeSwitchProps) {
   const { theme, setTheme } = useTheme();
   const id = useId();
 
@@ -22,7 +28,7 @@ export default function DarkModeSwitch() {
 
   return (
     <div
-      className="group inline-flex items-center gap-2 absolute top-8 left-4"
+      className={`group inline-flex items-center gap-2 ${isAbsolute ? "absolute top-8 left-4" : ""}`}
       data-state={checked ? "checked" : "unchecked"}
     >
       <span

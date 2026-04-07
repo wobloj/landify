@@ -16,6 +16,8 @@ import { ChangeSet } from "@/lib/types/types";
 type ChangesContextType = {
   changes: ChangeSet;
   hasChanges: boolean;
+  siteId: number | null;
+  setSiteId: (id: number | null) => void;
   updateSiteConfig: (updates: Partial<ChangeSet["siteConfig"]>) => void;
   updateSection: (
     sectionType: string,
@@ -36,7 +38,16 @@ const ChangesContext = createContext<ChangesContextType | undefined>(undefined);
 
 const AUTO_SAVE_INTERVAL = 5 * 60 * 1000; // 5 minut
 
-export function ChangesProvider({ children }: { children: React.ReactNode }) {
+interface ChangesProviderProps {
+  children: React.ReactNode;
+  initialSiteId?: number | null;
+}
+
+export function ChangesProvider({
+  children,
+  initialSiteId = null,
+}: ChangesProviderProps) {
+  const [siteId, setSiteId] = useState<number | null>(initialSiteId);
   const [changes, setChanges] = useState<ChangeSet>({});
   const [lastSavedState, setLastSavedState] = useState<ChangeSet>({}); // Stan po ostatnim zapisie
   const [isSaving, setIsSaving] = useState(false);
@@ -63,7 +74,7 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
 
   // Auto-save logic
   useEffect(() => {
-    if (hasChanges) {
+    if (hasChanges && siteId) {
       if (autoSaveTimerRef.current) {
         clearTimeout(autoSaveTimerRef.current);
       }
@@ -78,7 +89,7 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [changes, hasChanges]);
+  }, [changes, hasChanges, siteId]);
 
   // Warning before leaving page with unsaved changes
   useEffect(() => {
@@ -96,11 +107,11 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
   }, [hasChanges, isSaving]);
 
   const handleAutoSave = async () => {
-    if (!hasChanges || isSaving) return;
+    if (!hasChanges || isSaving || !siteId) return;
 
     setIsSaving(true);
     try {
-      const result = await saveAllChanges(changes);
+      const result = await saveAllChanges(changes, siteId);
 
       if (result.success) {
         toast({
@@ -207,7 +218,16 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
   }, [hasChanges, router, toast]);
 
   const saveChanges = useCallback(async () => {
-    if (!hasChanges || isSaving) return;
+    if (!hasChanges || isSaving || !siteId) {
+      if (!siteId) {
+        toast({
+          title: "Błąd",
+          description: "Nie wybrano strony do edycji.",
+          variant: "destructive",
+        });
+      }
+      return;
+    }
 
     setIsSaving(true);
 
@@ -217,7 +237,7 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const result = await saveAllChanges(changes);
+      const result = await saveAllChanges(changes, siteId);
 
       if (result.success) {
         toast({
@@ -253,7 +273,7 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsSaving(false);
     }
-  }, [changes, hasChanges, isSaving, toast, router]);
+  }, [changes, hasChanges, isSaving, siteId, toast, router]);
 
   const getChanges = useCallback(() => changes, [changes]);
 
@@ -262,6 +282,8 @@ export function ChangesProvider({ children }: { children: React.ReactNode }) {
       value={{
         changes,
         hasChanges,
+        siteId,
+        setSiteId,
         updateSiteConfig,
         updateSection,
         updateFooter,

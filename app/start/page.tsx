@@ -14,13 +14,13 @@ export default async function StartPage() {
     redirect("/auth");
   }
 
-  // Sprawdź czy użytkownik ukończył setup
-  const completedSetup = await checkIfUserCompletedSetup();
+  // // Sprawdź czy użytkownik ukończył setup
+  // const completedSetup = await checkIfUserCompletedSetup();
 
-  if (completedSetup) {
-    // Użytkownik już przeszedł przez onboarding - przekieruj do dashboard
-    redirect("/dashboard");
-  }
+  // if (completedSetup) {
+  //   // Użytkownik już przeszedł przez onboarding - przekieruj do dashboard
+  //   redirect("/dashboard");
+  // }
 
   // Nowy użytkownik - pokaż wybór planu
   return (

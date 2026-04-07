@@ -5,6 +5,7 @@ import { Label } from "@radix-ui/react-label";
 import { ChevronLeft } from "lucide-react";
 import { HeroType } from "@/lib/types/types";
 import { useChanges } from "@/context/ChangesContext";
+import Image from "next/image";
 
 interface HeroEditorProps {
   heroData: HeroType;
@@ -22,7 +23,7 @@ export default function HeroEditor({ heroData, onClick }: HeroEditorProps) {
           <span className="font-semibold text-sm">Edycja: Hero</span>
         </Button>
       </div>
-
+      <Label className="font-semibold">Ogólne</Label>
       <div className="space-y-4 bg-background rounded-xl p-4">
         <div className="space-y-2">
           <Label>Nagłówek</Label>

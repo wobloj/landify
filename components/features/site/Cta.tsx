@@ -12,7 +12,7 @@ type CtaProps = {
 export default function Cta({ section, configSite }: CtaProps) {
   return (
     <section key="cta" className="text-center">
-      <div className="max-w-4xl mx-auto w-1/2 p-4">
+      <div className="max-w-4xl mx-auto p-4">
         <h2
           className="text-3xl font-extrabold tracking-tight sm:text-4xl"
           style={{ color: configSite.text_color_primary }}
@@ -23,8 +23,11 @@ export default function Cta({ section, configSite }: CtaProps) {
           {section?.data_json.desc}
         </p>
         <Textarea
-          className="my-6 min-h-36"
-          style={{ background: configSite.secondary_color }}
+          className="my-6 min-h-36 text-xl!"
+          style={{
+            color: configSite.text_color_secondary,
+            background: configSite.secondary_color,
+          }}
         ></Textarea>
         <Button
           size="lg"

@@ -12,6 +12,11 @@ import { VideoEditor } from "./editors/VideoEditor";
 import { ImagesEditor } from "./editors/ImageEditor";
 import { BlankEditor } from "./editors/BlankEditor";
 import { useSectionSelection } from "@/context/SectionSelectionContext";
+import { useChanges } from "@/context/ChangesContext";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import CustomEditor from "./editors/CustomEditor";
 
 interface SectionSettingsProps {
   initialConfigSection: SectionConfig[];
@@ -21,10 +26,22 @@ export default function SectionSettingsView({
   initialConfigSection,
 }: SectionSettingsProps) {
   // Używamy context zamiast lokalnego state
-  const { selectedSection, setSelectedSection, scrollToSection } =
-    useSectionSelection();
+  const { selectedSection, setSelectedSection } = useSectionSelection();
 
-  const initialSections = Object.values(initialConfigSection)
+  // Pobierz siteId z ChangesContext
+  const { siteId } = useChanges();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [addingSectionType, setAddingSectionType] = useState<string | null>(
+    null,
+  );
+
+  const sectionsArray: SectionConfig[] = Array.isArray(initialConfigSection)
+    ? initialConfigSection
+    : Object.values(initialConfigSection || {});
+
+  const initialSections = sectionsArray
+    .slice()
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
     .map((section) => ({
       id: section.id,
@@ -36,12 +53,67 @@ export default function SectionSettingsView({
     initialSections.filter((s) => !s.is_deleted).map((s) => s.section_type),
   );
 
-  const heroData = initialConfigSection["hero"];
-  const featuresData = initialConfigSection["features"];
-  const ctaData = initialConfigSection["cta"];
-  const videoData = initialConfigSection["video"];
-  const imageData = initialConfigSection["images"];
-  const blankData = initialConfigSection["blank"];
+  const getSection = (type: string) =>
+    sectionsArray.find((s) => s.section_type === type) ||
+    ({
+      id: 0,
+      section_type: type as string,
+      sort_order: 0,
+      title: "",
+      image_url: null,
+      data_json: {},
+      is_deleted: true,
+      updated_at: new Date().toISOString(),
+    } as SectionConfig);
+
+  const heroData = getSection("hero");
+  const featuresData = getSection("features");
+  const ctaData = getSection("cta");
+  const videoData = getSection("video");
+  const imageData = getSection("images");
+  const blankData = getSection("blank");
+
+  const handleAddSection = async (sectionType: string) => {
+    if (!siteId) {
+      toast({
+        title: "Błąd",
+        description: "Nie znaleziono aktywnej strony",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAddingSectionType(sectionType);
+
+    try {
+      const result = await addSection(sectionType, siteId);
+
+      if (result.success) {
+        toast({
+          title: "Sukces",
+          description: "Sekcja została dodana",
+        });
+
+        // Odśwież stronę aby załadować nową sekcję
+        router.refresh();
+      } else {
+        toast({
+          title: "Błąd",
+          description: result.message || "Nie udało się dodać sekcji",
+          variant: "destructive",
+        });
+      }
+    } catch (error: unkown) {
+      console.error("Błąd podczas dodawania sekcji:", error);
+      toast({
+        title: "Błąd",
+        description: error.message || "Wystąpił nieoczekiwany błąd",
+        variant: "destructive",
+      });
+    } finally {
+      setAddingSectionType(null);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 py-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -61,6 +133,7 @@ export default function SectionSettingsView({
               setEditingSection={setSelectedSection}
             />
           </SidebarGroup>
+
           <SidebarGroup>
             <p className="text-xs font-semibold uppercase text-muted-foreground mb-3">
               Sekcje
@@ -69,24 +142,27 @@ export default function SectionSettingsView({
             <div className="grid grid-cols-2 gap-2">
               {AVAILABLE_SECTIONS.map((item) => {
                 const isEnabled = enabledSections.has(item.type);
+                const isAdding = addingSectionType === item.type;
 
                 return (
                   <Button
                     key={item.type}
                     variant="outline"
                     size="sm"
-                    disabled={isEnabled}
+                    disabled={isEnabled || isAdding}
                     className={`
-            justify-start h-auto py-2 px-3
-            ${isEnabled ? "opacity-50 cursor-not-allowed" : ""}
-          `}
-                    onClick={async () => {
-                      if (!isEnabled) {
-                        await addSection(item.type);
+                      justify-start h-auto py-2 px-3
+                      ${isEnabled ? "opacity-50 cursor-not-allowed" : ""}
+                    `}
+                    onClick={() => {
+                      if (!isEnabled && !isAdding) {
+                        handleAddSection(item.type);
                       }
                     }}
                   >
-                    {isEnabled ? (
+                    {isAdding ? (
+                      <div className="w-3 h-3 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : isEnabled ? (
                       <Check className="w-3 h-3 mr-2 text-green-500" />
                     ) : (
                       <Plus className="w-3 h-3 mr-2 text-muted-foreground" />
@@ -134,7 +210,7 @@ export default function SectionSettingsView({
       )}
 
       {selectedSection === "blank" && (
-        <BlankEditor
+        <CustomEditor
           blankData={blankData}
           onClick={() => setSelectedSection(null)}
         />

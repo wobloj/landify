@@ -21,6 +21,14 @@ export default async function DashboardPage() {
   const plan = sites[0]?.plan || "free";
   const maxSites = plan === "free" ? 1 : plan === "basic" ? 2 : 3;
 
+  // Wyciągnij dane użytkownika z Supabase auth object
+  const userData = {
+    username:
+      user.user_metadata?.display_name || user.user_metadata?.full_name || "",
+    email: user.email || "",
+    plan,
+  };
+
   // Server Actions do przekazania do komponentu klienta
   async function handleCreateSite() {
     "use server";
@@ -38,6 +46,7 @@ export default async function DashboardPage() {
       maxSites={maxSites}
       onCreateSite={handleCreateSite}
       onDeleteSite={handleDeleteSite}
+      userData={userData}
     />
   );
 }

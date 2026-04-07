@@ -20,6 +20,9 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Edit, Trash2 } from "lucide-react";
 import { saveSectionOrder, deleteSection } from "@/app/admin/actions";
 import { useSectionSelection } from "@/context/SectionSelectionContext";
+import { useChanges } from "@/context/ChangesContext";
+
+type SectionType = "hero" | "features" | "cta" | "video" | "images" | "blank";
 
 type SectionItem = {
   section_type: string;
@@ -36,17 +39,30 @@ export default function SortableSectionList({
   initialSections,
   setEditingSection,
 }: SortableSectionListProps) {
-  // ⬇️ filtrujemy tylko widoczne sekcje
+  // Filtrujemy tylko widoczne sekcje
   const [sections, setSections] = useState<SectionItem[]>([]);
-  const { setSelectedSection } = useSectionSelection();
+  const { setSelectedSection, scrollToSection } = useSectionSelection();
+  const { siteId } = useChanges(); // Pobierz siteId z contextu
 
   const handleSectionClick = (sectionType: string) => {
-    // WAŻNE: Używamy shouldScroll=true aby przewinąć do sekcji
-    setSelectedSection(sectionType as any, true); // true = scroll to section
+    console.log(`Section clicked: ${sectionType}`);
+
+    // Ustawiamy wybraną sekcję i scrollujemy
+    setSelectedSection(sectionType as SectionType, true);
+
+    // Dodatkowe debugowanie
+    setTimeout(() => {
+      console.log(`Should have scrolled to: ${sectionType}`);
+    }, 200);
   };
 
   useEffect(() => {
-    setSections(initialSections.filter((s) => !s.is_deleted));
+    const visibleSections = initialSections.filter((s) => !s.is_deleted);
+    setSections(visibleSections);
+    console.log(
+      "Visible sections:",
+      visibleSections.map((s) => s.section_type),
+    );
   }, [initialSections]);
 
   const sensors = useSensors(useSensor(PointerSensor));
@@ -63,12 +79,12 @@ export default function SortableSectionList({
     const newOrder = arrayMove(sections, oldIndex, newIndex);
     setSections(newOrder);
 
-    // backend nadal operuje na section_type
+    // Zapisz nową kolejność z siteId
     const order = newOrder.map((s) => s.section_type);
-    const result = await saveSectionOrder(order);
+    const result = await saveSectionOrder(order, siteId || undefined);
 
     if (!result?.success) {
-      console.error(result?.message);
+      console.error("Failed to save section order:", result?.message);
     }
   }
 
@@ -89,16 +105,27 @@ export default function SortableSectionList({
               id={section.section_type}
               label={section.section_type}
               onEdit={() => {
+                console.log(`Edit clicked for: ${section.section_type}`);
                 setEditingSection(section.section_type);
                 handleSectionClick(section.section_type);
               }}
               onHide={async () => {
-                await deleteSection(section.section_type);
+                console.log(`Hide clicked for: ${section.section_type}`);
 
-                // 🔁 natychmiastowa synchronizacja UI
-                setSections((prev) =>
-                  prev.filter((s) => s.section_type !== section.section_type),
+                // Przekaż siteId do deleteSection
+                const result = await deleteSection(
+                  section.section_type,
+                  siteId || undefined,
                 );
+
+                if (result?.success) {
+                  // Natychmiastowa synchronizacja UI
+                  setSections((prev) =>
+                    prev.filter((s) => s.section_type !== section.section_type),
+                  );
+                } else {
+                  console.error("Failed to delete section:", result?.message);
+                }
               }}
             />
           ))}

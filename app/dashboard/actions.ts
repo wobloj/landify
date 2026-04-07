@@ -1,7 +1,8 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { ActionState } from "@/lib/types/types";
 
 export async function getUserSites() {
   const supabase = await createClient();
@@ -30,6 +31,9 @@ export async function getUserSites() {
 
   return data || [];
 }
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export async function createNewSite() {
   const supabase = await createClient();
@@ -141,6 +145,59 @@ export async function createNewSite() {
       },
       is_deleted: false,
     },
+    {
+      site_id: siteId,
+      section_type: "images",
+      sort_order: 3,
+      title: "Moje obrazy",
+      data_json: {
+        desc: "Zdjęcia przedstawiające naszą firmę.",
+        images: [
+          {
+            id: "ph5vr28zvi-1768917418902.jpeg",
+            url: "https://asvbekkqnyerssncltdk.supabase.co/storage/v1/object/public/images/images/ph5vr28zvi-1768917418902.jpeg",
+            order: 0,
+          },
+          {
+            id: "f54hvo37fb9-1768980595279.jpg",
+            url: "https://asvbekkqnyerssncltdk.supabase.co/storage/v1/object/public/images/images/f54hvo37fb9-1768980595279.jpg",
+            order: 1,
+          },
+          {
+            id: "wre385204km-1768980669083.jpg",
+            url: "https://asvbekkqnyerssncltdk.supabase.co/storage/v1/object/public/images/images/wre385204km-1768980669083.jpg",
+            order: 2,
+          },
+        ],
+      },
+      is_deleted: true,
+    },
+    {
+      site_id: siteId,
+      section_type: "video",
+      sort_order: 4,
+      title: "Moje wideo",
+      data_json: {
+        url: "https://www.youtube.com/watch?v=qjWkNZ0SXfo",
+        desc: "Film przedstawiający nasze możliwości",
+      },
+      is_deleted: true,
+    },
+    {
+      site_id: siteId,
+      section_type: "blank",
+      sort_order: 5,
+      title: "Pusta sekcja",
+      data_json: {
+        desc: "Opis pustej sekcji",
+        columns: [
+          "Pierwsza kolumna pustej sekcji",
+          "Druga kolumna pustej sekcji",
+          "Trzecia kolumna pustej sekcji",
+        ],
+      },
+      is_deleted: true,
+    },
   ];
 
   await supabase.from("section_config").insert(defaultSections);
@@ -148,9 +205,27 @@ export async function createNewSite() {
   // 3. Utwórz footer
   await supabase.from("footer").insert({
     site_id: siteId,
-    copyright_text: "© 2026 Moja Strona. Wszystkie prawa zastrzeżone.",
+    copyright_text: "Moja Strona.",
     email: "kontakt@mojastrona.pl",
-    socials_json: [],
+    socials_json: {
+      socials: [
+        {
+          icon: "facebook",
+          link: "https://facebook.com",
+          social_name: "Facebook",
+        },
+        {
+          icon: "instagram",
+          link: "https://instagram.com",
+          social_name: "Instagram",
+        },
+        {
+          icon: "github",
+          link: "https://github.com",
+          social_name: "Github",
+        },
+      ],
+    },
   });
 
   // 4. Utwórz wip
@@ -159,6 +234,17 @@ export async function createNewSite() {
     title: "Strona w budowie",
     desc: "Wkrótce tu będzie coś wspaniałego!",
   });
+
+  // Wywołaj Edge Function w tle (nie blokuj użytkownika)
+  // Używamy fetch, bo nie musimy czekać na koniec robienia zdjęcia
+  fetch(`${SUPABASE_URL}/functions/v1/generate-screenshot`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify({ siteId, slug }),
+  }).catch((err) => console.error("Screenshot error:", err));
 
   revalidatePath("/dashboard");
   return { success: true, siteId };
@@ -198,4 +284,136 @@ export async function deleteSite(siteId: number) {
 
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function updateUserAccount(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return {
+        success: false,
+        message: "Brak autoryzacji. Zaloguj się ponownie.",
+      };
+    }
+
+    const newUsername = (formData.get("username") as string)?.trim() || "";
+    // Normalizuj do lowercase - kluczowa poprawka
+    const newEmail =
+      (formData.get("email") as string)?.trim().toLowerCase() || "";
+    const currentEmail = user.email?.toLowerCase() || "";
+
+    const result: ActionState = { success: true, message: "" };
+
+    // ── Nazwa użytkownika (osobny call) ───────────────────────────────────
+    const currentDisplayName =
+      user.user_metadata?.display_name ||
+      user.user_metadata?.displayName ||
+      user.user_metadata?.full_name ||
+      "";
+
+    if (newUsername && newUsername !== currentDisplayName) {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          ...user.user_metadata,
+          display_name: newUsername,
+        },
+      });
+
+      if (error) {
+        return {
+          success: false,
+          message: `Błąd zmiany nazwy: ${error.message}`,
+        };
+      }
+
+      result.usernameUpdated = true;
+    }
+
+    // ── Email (bezpośrednia zmiana przez Admin API - bez potwierdzenia) ────
+    if (newEmail && newEmail !== currentEmail) {
+      console.log(
+        "[updateUserAccount] Updating email from",
+        currentEmail,
+        "to",
+        newEmail,
+      );
+
+      try {
+        const adminClient = await createAdminClient();
+
+        const { error } = await adminClient.auth.admin.updateUserById(user.id, {
+          email: newEmail,
+        });
+
+        if (error) {
+          console.error("[updateUserAccount] Email update error:", error);
+          const msg = error.message?.toLowerCase() || "";
+
+          if (
+            msg.includes("already registered") ||
+            msg.includes("email already") ||
+            msg.includes("duplicate") ||
+            msg.includes("already exists") ||
+            msg.includes("in use") ||
+            msg.includes("user already registered")
+          ) {
+            return {
+              success: false,
+              message: "Podany adres e-mail jest już zajęty przez inne konto.",
+            };
+          }
+
+          if (msg.includes("invalid email")) {
+            return {
+              success: false,
+              message: "Podany adres e-mail jest nieprawidłowy.",
+            };
+          }
+
+          return {
+            success: false,
+            message: error.message || "Błąd zmiany adresu e-mail.",
+          };
+        }
+
+        result.emailUpdated = true;
+      } catch (err: any) {
+        console.error("[updateUserAccount] Admin client error:", err);
+        return {
+          success: false,
+          message: err?.message || "Błąd aktualizacji email.",
+        };
+      }
+    }
+
+    // Nic się nie zmieniło
+    if (!result.usernameUpdated && !result.emailUpdated) {
+      return { success: true, message: "Brak zmian do zapisania." };
+    }
+
+    // Komunikat zależny od tego co się zmieniło
+    if (result.emailUpdated) {
+      result.message = "Adres e-mail został zmieniony pomyślnie.";
+    } else {
+      result.message = "Zmiany zostały zapisane pomyślnie.";
+    }
+
+    revalidatePath("/dashboard");
+    return result;
+  } catch (error: any) {
+    console.error("[updateUserAccount] Unexpected error:", error);
+    return {
+      success: false,
+      message: error?.message || "Nieoczekiwany błąd podczas zapisu danych.",
+    };
+  }
 }

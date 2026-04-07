@@ -48,7 +48,7 @@ export function SectionSelectionProvider({
         sectionRefs.current.delete(section);
       }
     },
-    []
+    [],
   );
 
   // Funkcja scrollowania do sekcji
@@ -73,12 +73,13 @@ export function SectionSelectionProvider({
 
       if (shouldScroll && section) {
         // Małe opóźnienie aby animacja była płynniejsza
+        // i aby dać czas na wyrenderowanie komponentu jeśli jeszcze go nie ma
         setTimeout(() => {
           scrollToSection(section);
-        }, 100);
+        }, 150);
       }
     },
-    [scrollToSection]
+    [scrollToSection],
   );
 
   return (
@@ -99,7 +100,7 @@ export function useSectionSelection() {
   const context = useContext(SectionSelectionContext);
   if (!context) {
     throw new Error(
-      "useSectionSelection musi być użyty wewnątrz SectionSelectionProvider"
+      "useSectionSelection musi być użyty wewnątrz SectionSelectionProvider",
     );
   }
   return context;

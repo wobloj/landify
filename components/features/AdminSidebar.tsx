@@ -17,18 +17,18 @@ import Link from "next/link";
 import { useSectionSelection } from "@/context/SectionSelectionContext";
 
 interface AdminSidebarProps {
-  initialConfigSite: SiteConfig;
-  initialConfigSection: SectionConfig[];
-  initialConfigFooter?: FooterConfig;
+  configSite: SiteConfig;
+  configSections: Record<string, SectionConfig>;
+  configFooter?: FooterConfig;
 }
 
 export default function AdminSidebar({
-  initialConfigSite,
-  initialConfigSection,
-  initialConfigFooter,
+  configSite,
+  configSections,
+  configFooter,
 }: AdminSidebarProps) {
   const [activeTab, setActiveTab] = useState<"sections" | "settings">(
-    "sections"
+    "sections",
   );
   const { selectedSection } = useSectionSelection();
 
@@ -43,7 +43,7 @@ export default function AdminSidebar({
     <Sidebar className="border-r border-border">
       <SidebarHeader>
         <div className="flex flex-col gap-4 pt-4">
-          <DarkModeSwitch />
+          <DarkModeSwitch isAbsolute={true} />
           <div className="text-center">
             <Link href="/">
               <p className="text-2xl font-bold tracking-tight">Landify CMS</p>
@@ -86,14 +86,14 @@ export default function AdminSidebar({
         {/* TAB: USTAWIENIA (Globalne) */}
         {activeTab === "settings" && (
           <GlobalSettingsView
-            initialSiteConfig={initialConfigSite}
-            initialFooterConfig={initialConfigFooter}
+            initialSiteConfig={configSite}
+            initialFooterConfig={configFooter}
           />
         )}
 
         {/* TAB: SEKCJE */}
         {activeTab === "sections" && (
-          <SectionSettingsView initialConfigSection={initialConfigSection} />
+          <SectionSettingsView initialConfigSection={configSections} />
         )}
       </SidebarContent>
       <SidebarFooter className="border-t p-4">

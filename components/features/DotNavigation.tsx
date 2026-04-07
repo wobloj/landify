@@ -6,6 +6,7 @@ const sections = ["home", "about", "how", "faq"];
 
 export default function DotNavigation() {
   const [active, setActive] = useState("home");
+  const [hovered, setHovered] = useState<string | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -32,13 +33,19 @@ export default function DotNavigation() {
       {sections.map((id) => (
         <div className="flex flex-row items-center justify-end gap-2" key={id}>
           <p
-            className={`text-sm font-semibold ${
-              active === id ? "block" : "hidden"
+            className={`text-sm font-semibold transition-all duration-200 ease-out block ${
+              active === id
+                ? "opacity-100 translate-x-0 text-accent-foreground"
+                : hovered === id
+                  ? "opacity-100 translate-x-0 text-slate-400"
+                  : "opacity-0 translate-x-2 text-gray-400"
             }`}
           >
             {id.toString().toUpperCase()}
           </p>
           <button
+            onMouseEnter={() => setHovered(id)}
+            onMouseLeave={() => setHovered(null)}
             onClick={() =>
               document
                 .getElementById(id)

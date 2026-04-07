@@ -23,6 +23,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import LogoutButton from "./LogoutButton";
+import DashboardSettings from "./DashboardSettings";
 
 type Site = {
   id: number;
@@ -33,11 +35,19 @@ type Site = {
   created_at: string;
 };
 
+// Poprawny typ - obiekt, nie funkcja
+type UserData = {
+  username?: string | null;
+  email?: string | null;
+  plan?: string | null;
+};
+
 type DashboardPanelProps = {
   sites: Site[];
   maxSites: number;
   onCreateSite: () => Promise<void>;
   onDeleteSite: (siteId: number) => Promise<void>;
+  userData: UserData; // ← poprawiony typ
 };
 
 export default function DashboardPanel({
@@ -45,6 +55,7 @@ export default function DashboardPanel({
   maxSites,
   onCreateSite,
   onDeleteSite,
+  userData,
 }: DashboardPanelProps) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
@@ -77,7 +88,7 @@ export default function DashboardPanel({
   };
 
   const handleEditSite = (siteId: number) => {
-    router.push(`/admin?siteId=${siteId}`);
+    router.push(`/admin?site=${siteId}`);
   };
 
   return (
@@ -90,24 +101,10 @@ export default function DashboardPanel({
           </p>
         </div>
 
-        <Button
-          onClick={handleCreateSite}
-          disabled={!canAddSite || creating}
-          size="lg"
-          className="cursor-pointer"
-        >
-          {creating ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Tworzenie...
-            </>
-          ) : (
-            <>
-              <Plus className="w-4 h-4 mr-2" />
-              Dodaj stronę
-            </>
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <LogoutButton />
+          <DashboardSettings userData={userData} />
+        </div>
       </div>
 
       {!canAddSite && (
@@ -115,7 +112,7 @@ export default function DashboardPanel({
           <p className="text-sm text-yellow-800 dark:text-yellow-200">
             Osiągnąłeś limit stron dla swojego planu.
             <Button variant="link" className="p-0 ml-1 h-auto">
-              Zmień plan aby dodać więcej stron.
+              <a href="/plan">Zmień plan aby dodać więcej stron.</a>
             </Button>
           </p>
         </div>
@@ -175,7 +172,9 @@ export default function DashboardPanel({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => window.open(`/${site.site_slug}`, "_blank")}
+                    onClick={() =>
+                      window.open(`/site/${site.site_slug}`, "_blank")
+                    }
                   >
                     <ExternalLink className="w-4 h-4" />
                   </Button>
@@ -199,8 +198,9 @@ export default function DashboardPanel({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Czy na pewno?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Ta akcja jest nieodwracalna. Strona "{site.app_title}"
-                        zostanie trwale usunięta wraz ze wszystkimi danymi.
+                        Ta akcja jest nieodwracalna. Strona &quot;
+                        {site.app_title}&quot; zostanie trwale usunięta wraz ze
+                        wszystkimi danymi.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -217,6 +217,27 @@ export default function DashboardPanel({
               </CardFooter>
             </Card>
           ))}
+          {canAddSite && (
+            <div className="flex flex-col gap-2 items-center justify-center border-2 border-dashed rounded-lg p-5">
+              <Button
+                className="cursor-pointer"
+                size={"icon-lg"}
+                variant={"secondary"}
+                onClick={handleCreateSite}
+              >
+                {creating ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <Plus />
+                  </>
+                )}
+              </Button>
+              Dodaj nową stronę
+            </div>
+          )}
         </div>
       )}
     </div>

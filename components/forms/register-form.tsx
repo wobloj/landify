@@ -65,7 +65,7 @@ export default function RegisterForm() {
 
     router.refresh();
     await login(email, password);
-    router.push("/admin");
+    router.push("/start");
   };
 
   return (

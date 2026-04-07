@@ -21,7 +21,7 @@ export function BlankEditor({
 }) {
   const { updateSection } = useChanges();
   const [numberOfColumns, setNumberOfColumns] = useState(
-    blankData.data_json.columns.length
+    blankData.data_json.columns.length,
   );
   return (
     <div className="animate-in slide-in-from-right-8">

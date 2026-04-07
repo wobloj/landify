@@ -20,10 +20,10 @@ export default function Video({ section, configSite }: VideoProps) {
 
   return (
     <section key="video" className="text-center">
-      <div className="max-w-4xl mx-auto p-4">
+      <div className="p-4 flex flex-col gap-10 items-center justify-around">
         <div className="mb-5">
           <h2
-            className="text-3xl font-extrabold tracking-tight sm:text-4xl"
+            className="text-3xl font-extrabold tracking-tight sm:text-5xl"
             style={{ color: configSite.text_color_primary }}
           >
             {section?.title}
@@ -37,7 +37,7 @@ export default function Video({ section, configSite }: VideoProps) {
         </div>
         <div className="flex flex-col place-items-center">
           <iframe
-            width="720"
+            width="920"
             src={urlConverter(section?.data_json.url)}
             title="YouTube video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

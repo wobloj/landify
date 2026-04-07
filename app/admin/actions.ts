@@ -18,15 +18,21 @@ import { revalidatePath } from "next/cache";
 /**
  * Główna akcja zapisująca wszystkie zmiany
  * Porównuje zmiany z aktualnym stanem w bazie i zapisuje tylko rzeczywiste różnice
+ *
+ * @param changes - Zmiany do zapisania
+ * @param siteId - Opcjonalny ID strony (jeśli nie podano, użyje aktywnej strony użytkownika)
  */
-export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
+export async function saveAllChanges(
+  changes: ChangeSet,
+  siteId?: number,
+): Promise<SaveResult> {
   try {
     const savedChanges: SaveResult["savedChanges"] = {};
     let hasAnyChanges = false;
 
     // 1. Sprawdź i zapisz zmiany w site_config
     if (changes.siteConfig && Object.keys(changes.siteConfig).length > 0) {
-      const currentConfig = await getSiteConfig();
+      const currentConfig = await getSiteConfig(siteId);
       const actualChanges = compareAndFilterChanges(
         currentConfig,
         changes.siteConfig,
@@ -39,7 +45,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
           processedChanges.spacing = `${processedChanges.spacing}px` as any;
         }
 
-        await updateSiteGlobalContent(processedChanges);
+        await updateSiteGlobalContent(processedChanges, siteId);
         savedChanges.siteConfig = true;
         hasAnyChanges = true;
       }
@@ -47,7 +53,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
 
     // 2. Sprawdź i zapisz zmiany w sekcjach
     if (changes.sections && Object.keys(changes.sections).length > 0) {
-      const currentSections = await getSectionsData();
+      const currentSections = await getSectionsData(siteId);
       const updatedSections: string[] = [];
 
       for (const [sectionType, sectionChanges] of Object.entries(
@@ -62,7 +68,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
         );
 
         if (Object.keys(actualChanges).length > 0) {
-          await updateSectionContent(sectionType, actualChanges);
+          await updateSectionContent(sectionType, actualChanges, siteId);
           updatedSections.push(sectionType);
           hasAnyChanges = true;
         }
@@ -75,14 +81,14 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
 
     // 3. Sprawdź i zapisz zmiany w footer
     if (changes.footer && Object.keys(changes.footer).length > 0) {
-      const currentFooter = await getFooterConfig();
+      const currentFooter = await getFooterConfig(siteId);
       const actualChanges = compareAndFilterChanges(
         currentFooter,
         changes.footer,
       );
 
       if (Object.keys(actualChanges).length > 0) {
-        await updateFooterContent(actualChanges);
+        await updateFooterContent(actualChanges, siteId);
         savedChanges.footer = true;
         hasAnyChanges = true;
       }
@@ -90,7 +96,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
 
     // 4. Sprawdź i zapisz zmiany kolejności sekcji
     if (changes.sectionOrder && changes.sectionOrder.length > 0) {
-      const currentSections = await getSectionsData();
+      const currentSections = await getSectionsData(siteId);
       const currentOrder = Object.values(currentSections)
         .sort((a, b) => b.sort_order - a.sort_order)
         .map((s) => s.section_type);
@@ -98,7 +104,7 @@ export async function saveAllChanges(changes: ChangeSet): Promise<SaveResult> {
       const hasOrderChanged = !arraysEqual(currentOrder, changes.sectionOrder);
 
       if (hasOrderChanged) {
-        await saveOrderToSection(changes.sectionOrder);
+        await saveOrderToSection(changes.sectionOrder, siteId);
         savedChanges.sectionOrder = true;
         hasAnyChanges = true;
       }
@@ -224,7 +230,7 @@ function arraysEqual(arr1: string[], arr2: string[]): boolean {
 
 // === Stare akcje (zachowane dla kompatybilności wstecznej) ===
 
-export async function saveGlobalSettings(formData: FormData) {
+export async function saveGlobalSettings(formData: FormData, siteId?: number) {
   try {
     const updates = {
       app_title: formData.get("app_title") as string,
@@ -236,7 +242,7 @@ export async function saveGlobalSettings(formData: FormData) {
       spacing: (formData.get("spacing") + "px") as string,
     };
 
-    await updateSiteGlobalContent(updates);
+    await updateSiteGlobalContent(updates, siteId);
     revalidatePath("/admin");
     revalidatePath("/");
     return { success: true, message: "Zapisano ustawienia globalne." };
@@ -245,7 +251,10 @@ export async function saveGlobalSettings(formData: FormData) {
   }
 }
 
-export async function saveSectionSettings(formData: FormData): Promise<void> {
+export async function saveSectionSettings(
+  formData: FormData,
+  siteId?: number,
+): Promise<void> {
   const sectionType = formData.get("section_type") as string;
   if (!sectionType) throw new Error("Brak section_type");
 
@@ -279,14 +288,14 @@ export async function saveSectionSettings(formData: FormData): Promise<void> {
     };
   }
 
-  await updateSectionContent(sectionType, { title, data_json });
+  await updateSectionContent(sectionType, { title, data_json }, siteId);
   revalidatePath("/admin");
   revalidatePath("/");
 }
 
-export async function saveSectionOrder(sections: string[]) {
+export async function saveSectionOrder(sections: string[], siteId?: number) {
   try {
-    await saveOrderToSection(sections);
+    await saveOrderToSection(sections, siteId);
     revalidatePath("/admin");
     revalidatePath("/");
     return { success: true };
@@ -295,9 +304,9 @@ export async function saveSectionOrder(sections: string[]) {
   }
 }
 
-export async function publishPageAction() {
+export async function publishPageAction(siteId?: number) {
   try {
-    await updatePublishStatus(true);
+    await updatePublishStatus(true, siteId);
     revalidatePath("/");
     revalidatePath("/admin");
     return { success: true, message: "Strona opublikowana pomyślnie!" };
@@ -309,9 +318,9 @@ export async function publishPageAction() {
   }
 }
 
-export async function unpublishPageAction() {
+export async function unpublishPageAction(siteId?: number) {
   try {
-    await updatePublishStatus(false);
+    await updatePublishStatus(false, siteId);
     revalidatePath("/");
     revalidatePath("/admin");
     return { success: true, message: "Strona ustawiona jako 'W Budowie'." };
@@ -323,9 +332,9 @@ export async function unpublishPageAction() {
   }
 }
 
-export async function addSection(sectionType: string) {
+export async function addSection(sectionType: string, siteId?: number) {
   try {
-    await setSectionVisibility(sectionType, false);
+    await setSectionVisibility(sectionType, false, siteId);
 
     revalidatePath("/admin");
     revalidatePath("/");
@@ -339,9 +348,9 @@ export async function addSection(sectionType: string) {
   }
 }
 
-export async function deleteSection(sectionType: string) {
+export async function deleteSection(sectionType: string, siteId?: number) {
   try {
-    await setSectionVisibility(sectionType, true);
+    await setSectionVisibility(sectionType, true, siteId);
 
     revalidatePath("/admin");
     revalidatePath("/");

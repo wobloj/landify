@@ -1,6 +1,8 @@
 "use client";
 
 import { SectionConfig, SiteConfig } from "@/lib/types/types";
+import Image from "next/image";
+import image from "@/public/photo1.jpeg";
 
 type HeroProps = {
   section: SectionConfig;
@@ -9,7 +11,7 @@ type HeroProps = {
 
 export default function Hero({ section, configSite }: HeroProps) {
   return (
-    <section className="text-center">
+    <section className="text-center flex flex-row gap-5 items-center">
       <div className="max-w-4xl mx-auto p-4">
         <h2
           className="text-5xl font-extrabold tracking-tight sm:text-6xl mb-6"
@@ -24,6 +26,14 @@ export default function Hero({ section, configSite }: HeroProps) {
         >
           {section?.data_json.subtitle}
         </p>
+      </div>
+      <div>
+        <Image
+          src={image}
+          alt="Hero Image"
+          height={600}
+          className="rounded-md mt-4 aspect-video"
+        />
       </div>
     </section>
   );

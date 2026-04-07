@@ -55,7 +55,7 @@ export default function AuthForm() {
 
     // Sukces - odśwież router, aby middleware mógł zadziałać z nowym ciasteczkiem
     router.refresh();
-    router.push("/admin");
+    router.push("/dashboard");
   };
 
   return (

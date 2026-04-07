@@ -120,19 +120,26 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const userId = subscription.metadata?.userId;
   const plan = subscription.metadata?.plan;
 
-  if (!userId || !plan) return;
+  if (!userId) {
+    console.warn("handleSubscriptionUpdated: missing userId in metadata");
+    return; // Nie rzucaj błędu - Stripe przestanie wysyłać event
+  }
 
-  // Zaktualizuj datę wygaśnięcia na podstawie końca okresu rozliczeniowego
   const expirationDate = new Date(subscription.current_period_end * 1000);
 
-  await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from("site_config")
     .update({
-      plan: plan,
+      ...(plan && { plan }),
       plan_expired_date: expirationDate.toISOString(),
     })
     .eq("user_id", userId)
     .eq("is_active", true);
+
+  if (error) {
+    console.error("handleSubscriptionUpdated error:", error);
+    throw error;
+  }
 
   console.log(`✅ Subscription updated for user ${userId}`);
 }
@@ -140,41 +147,81 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const userId = subscription.metadata?.userId;
 
-  if (!userId) return;
+  if (!userId) {
+    console.warn("handleSubscriptionDeleted: missing userId in metadata");
+    return;
+  }
 
-  // Przywróć plan free po anulowaniu subskrypcji
-  await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from("site_config")
-    .update({
-      plan: "free",
-      plan_expired_date: null,
-    })
+    .update({ plan: "free", plan_expired_date: null })
     .eq("user_id", userId)
     .eq("is_active", true);
 
-  console.log(`✅ Subscription cancelled, user ${userId} downgraded to free`);
+  if (error) {
+    console.error("handleSubscriptionDeleted error:", error);
+    throw error;
+  }
+
+  console.log(`✅ User ${userId} downgraded to free`);
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscription = await stripe.subscriptions.retrieve(
-    invoice.subscription as string,
-  );
+  // invoice.subscription może być null, string lub obiektem Subscription
+  const subscriptionId =
+    typeof invoice.subscription === "string"
+      ? invoice.subscription
+      : invoice.subscription?.id;
+
+  // Jeśli faktura nie dotyczy subskrypcji - pomijamy
+  if (!subscriptionId) {
+    console.log("invoice.payment_succeeded: no subscription, skipping");
+    return;
+  }
+
+  let subscription: Stripe.Subscription;
+  try {
+    subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  } catch (err: any) {
+    console.error(
+      "Failed to retrieve subscription:",
+      subscriptionId,
+      err.message,
+    );
+    throw err; // Re-throw żeby Stripe spróbował ponownie
+  }
 
   const userId = subscription.metadata?.userId;
-  if (!userId) return;
+  const plan = subscription.metadata?.plan;
 
-  // Przedłuż datę wygaśnięcia
+  if (!userId) {
+    console.warn(
+      "invoice.payment_succeeded: missing userId in subscription metadata",
+      subscriptionId,
+    );
+    return;
+  }
+
   const expirationDate = new Date(subscription.current_period_end * 1000);
 
-  await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from("site_config")
     .update({
       plan_expired_date: expirationDate.toISOString(),
+      // Aktualizuj plan jeśli jest w metadanych (np. po upgrade)
+      ...(plan && { plan }),
     })
     .eq("user_id", userId)
     .eq("is_active", true);
 
-  console.log(`✅ Payment succeeded for user ${userId}`);
+  if (error) {
+    console.error("Failed to update plan_expired_date:", error);
+    throw error;
+  }
+
+  console.log(
+    `✅ Payment succeeded for user ${userId}, plan extended to ${expirationDate.toISOString()}`,
+  );
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {

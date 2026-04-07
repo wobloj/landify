@@ -110,7 +110,7 @@ export default function GlobalSettingsView({
           </CollapsibleContent>
         </Collapsible>
 
-        <Collapsible defaultOpen={true}>
+        <Collapsible defaultOpen={false}>
           <CollapsibleTrigger className="flex flex-row justify-between mb-5 w-full text-muted-foreground cursor-pointer">
             <Label className="text-xs font-semibold uppercase cursor-pointer">
               <Palette size={18} />
@@ -164,7 +164,7 @@ export default function GlobalSettingsView({
             </div>
           </CollapsibleContent>
         </Collapsible>
-        <Collapsible defaultOpen={true}>
+        <Collapsible defaultOpen={false}>
           <CollapsibleTrigger className="flex flex-row justify-between mb-5 w-full text-muted-foreground cursor-pointer">
             <Label className="text-xs font-semibold uppercase text-muted-foreground flex flex-row items-center gap-2 cursor-pointer">
               <PanelBottom size={18} />
@@ -176,7 +176,7 @@ export default function GlobalSettingsView({
             <FooterEditor initialFooterConfig={initialFooterConfig} />
           </CollapsibleContent>
         </Collapsible>
-        <Collapsible defaultOpen={true}>
+        <Collapsible defaultOpen={false}>
           <CollapsibleTrigger className="flex flex-row justify-between mb-5 w-full text-muted-foreground cursor-pointer">
             <Label className="text-xs font-semibold uppercase text-muted-foreground flex flex-row items-center gap-2 cursor-pointer">
               <Wrench size={18} />

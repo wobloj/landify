@@ -17,6 +17,7 @@ import {
   mergeFooterData,
   getSectionOrder,
 } from "@/lib/utils/mergePreviewData";
+import Header from "./site/Header";
 
 interface LandingPagePreviewProps {
   configSite: SiteConfig;
@@ -71,21 +72,7 @@ export function LandingPagePreview({
       className="min-h-screen font-sans w-full flex flex-col"
       style={{ backgroundColor: configSite.bg_color, gap: configSite.spacing }}
     >
-      <header
-        className="py-4"
-        style={{
-          color: configSite.text_color_primary,
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1
-            className="text-2xl font-bold"
-            style={{ color: configSite.text_color_primary }}
-          >
-            {configSite.app_title}
-          </h1>
-        </div>
-      </header>
+      <Header configSite={configSite} />
 
       {orderedSections.map(([key, section]) => {
         switch (key) {

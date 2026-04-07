@@ -9,10 +9,52 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useEffect } from "react";
 
-export function SaveButton() {
-  const { hasChanges, canUndo, undoChanges, saveChanges, isSaving } =
-    useChanges();
+interface SaveButtonProps {
+  siteId: number;
+}
+
+export function SaveButton({ siteId: propSiteId }: SaveButtonProps) {
+  const {
+    hasChanges,
+    canUndo,
+    undoChanges,
+    saveChanges,
+    isSaving,
+    siteId,
+    setSiteId,
+  } = useChanges();
+
+  // Set siteId in context when prop changes
+  useEffect(() => {
+    if (propSiteId && propSiteId !== siteId) {
+      setSiteId(propSiteId);
+    }
+  }, [propSiteId, siteId, setSiteId]);
+
+  // DEBUGOWANIE - pomocne do diagnozy problemów
+  useEffect(() => {
+    console.log("SaveButton state:", {
+      hasChanges,
+      isSaving,
+      siteId: propSiteId,
+      canUndo,
+    });
+  }, [hasChanges, isSaving, propSiteId, canUndo]);
+
+  const handleSave = async () => {
+    console.log("SaveButton clicked - calling saveChanges()");
+    console.log("Current siteId:", propSiteId);
+    console.log("Has changes:", hasChanges);
+
+    if (!propSiteId) {
+      console.error("ERROR: siteId is null! Cannot save changes.");
+      return;
+    }
+
+    await saveChanges();
+  };
 
   return (
     <div className="flex items-center gap-2">
@@ -48,8 +90,8 @@ export function SaveButton() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              onClick={saveChanges}
-              disabled={!hasChanges || isSaving}
+              onClick={handleSave}
+              disabled={!hasChanges || isSaving || !propSiteId}
               className="gap-2"
               size="sm"
             >
@@ -72,7 +114,9 @@ export function SaveButton() {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {hasChanges ? (
+            {!propSiteId ? (
+              <p className="text-red-500">Błąd: Brak ID strony</p>
+            ) : hasChanges ? (
               <div className="flex flex-col gap-1">
                 <p className="font-semibold">Kliknij aby zapisać zmiany</p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">

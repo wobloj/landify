@@ -19,6 +19,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useChanges } from "@/context/ChangesContext";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FeaturesEditorProps {
   featuresData: FeaturesType;
@@ -37,12 +38,21 @@ export default function FeaturesEditor({
   const updateItems = (newItems: typeof items) => {
     setLocalItems(newItems);
     updateSection("features", {
-      data_json: { items: newItems },
+      data_json: { ...featuresData.data_json, items: newItems },
     });
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateSection("features", { title: e.target.value });
+  };
+
+  const handleDescChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateSection("features", {
+      data_json: {
+        ...featuresData.data_json,
+        sectionDescription: e.target.value,
+      },
+    });
   };
 
   const handleIconChange = (index: number, value: string) => {
@@ -53,7 +63,7 @@ export default function FeaturesEditor({
 
   const handleItemTitleChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newItems = [...localItems];
     newItems[index] = { ...newItems[index], title: e.target.value };
@@ -62,7 +72,7 @@ export default function FeaturesEditor({
 
   const handleItemDescChange = (
     index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newItems = [...localItems];
     newItems[index] = { ...newItems[index], desc: e.target.value };
@@ -89,6 +99,15 @@ export default function FeaturesEditor({
             name="title"
             defaultValue={featuresData?.title}
             onChange={handleTitleChange}
+          />
+        </div>
+        <div className="space-y-2 bg-background p-4 rounded-md">
+          <Label htmlFor="desc">Opis</Label>
+          <Input
+            id="desc"
+            name="desc"
+            defaultValue={featuresData?.data_json?.sectionDescription}
+            onChange={handleDescChange}
           />
         </div>
 
@@ -144,7 +163,7 @@ export default function FeaturesEditor({
 
                   <div>
                     <Label>Opis sekcji</Label>
-                    <Input
+                    <Textarea
                       name={`items[${index}].desc`}
                       value={item.desc}
                       onChange={(e) => handleItemDescChange(index, e)}

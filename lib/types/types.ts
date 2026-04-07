@@ -64,7 +64,7 @@ export type SectionConfig = {
   sort_order: number;
   title: string;
   image_url: string | null;
-  data_json: Record<string, any>;
+  data_json: Record<string, unknown>;
   is_deleted?: boolean;
   updated_at: string;
 };
@@ -135,7 +135,7 @@ export type ChangeSet = {
       [sectionType: string]: {
         title?: string;
         image_url?: string | null;
-        data_json?: Record<string, any>;
+        data_json?: Record<string, unknown>;
       };
     };
 
@@ -145,7 +145,7 @@ export type ChangeSet = {
         section_type: "images" | "video" | "blank";
         title?: string;
         image_url?: string | null;
-        data_json?: Record<string, any>;
+        data_json?: Record<string, unknown>;
       };
     };
   };
@@ -179,4 +179,11 @@ export type FullConfig = {
   siteConfig: SiteConfig;
   sections: SectionConfig[];
   footer?: FooterConfig;
+};
+
+export type ActionState = {
+  success: boolean;
+  message: string;
+  usernameUpdated?: boolean;
+  emailUpdated?: boolean;
 };
